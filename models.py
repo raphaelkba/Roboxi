@@ -31,6 +31,10 @@ class models():
             self.model = self.diff_drive
         elif model == "bicycle kinematic":
             self.model = self.bicycle_kinematic
+        elif model == "extended bicycle":
+            self.model = self.extended_bicycle
+        elif model == "front wheel bicycle":
+            self.model = self.front_wheel_bicycle
     
     def simple_bicycle(self, states, u):
         """
@@ -71,7 +75,7 @@ class models():
     
         return system
         
-    def extended_bicycle(self, states, u, params):
+    def extended_bicycle(self, states, u):
         """
         Simple bicycle/car nonlinear system.
         Input: x - state vector (x, y, theta, velocity, steering angle)
@@ -79,11 +83,11 @@ class models():
                params - parameters (distance from front and back axis)
         Output: system - system states
         """
-        L = 0.1
-        max_vel = 2.0
-        min_vel = -2.0
+        L = 4.5
+        max_vel = 10.0
+        min_vel = -10.0
         a = u[0]
-        w = u[1]#%2*math.pi
+        w = u[1]
         
         if a < min_vel:
             a = min_vel
@@ -91,10 +95,10 @@ class models():
             a = max_vel
             
             
-        if w < min_vel:
-            w = min_vel
-        elif w > max_vel:
-            w = max_vel
+        if w < -20.0:
+            w = -20.0
+        elif w > 20.0:
+            w = 20.0
             
         x = states[0][0]
         y = states[1][0]
@@ -107,10 +111,36 @@ class models():
                            [v*np.tan(phi)/L],
                            [a],
                            [w]])
-    
-        return self.system   
+          
+        
+        return system   
  
-    def front_wheel_bicycle(self, states, u, params):
+    def diff_drive(self, states, u):
+        """
+        Differential Drive model.
+        Input: x - state vector (x, y, theta)
+               u - controls (speed, steering_angle)
+               params - parameters (wheel radius)
+        Output: system - system states
+        """
+        r = 0.05
+        L = 0.1
+        
+        x = states[0][0]
+        y = states[1][0]
+        phi = states[2][0]
+        
+
+        v = u[0]
+        df = u[1]
+        system = np.array([[r*v*np.cos(phi)],
+                           [r*v*np.sin(phi)],
+                           [truncate_angle( r*df/L)]])
+    
+        return system 
+ 
+ 
+    def front_wheel_bicycle(self, states, u):
         """
         Simple front wheel bicycle/car kinematics.
         Input: x - state vector (x, y, theta, velocity, steering angle)
@@ -118,9 +148,9 @@ class models():
                params - parameters (distance from front and back axis)
         Output: system - system states
         """
-        L = 0.1
-        max_vel = 2.0
-        min_vel = -2.0
+        L = 4.5
+        max_vel = 1.0
+        min_vel = -1.0
         v = u[0]
         w = u[1]#%2*math.pi
         
@@ -145,7 +175,7 @@ class models():
                            [v*np.sin(phi)/L],
                            [w]])
     
-        return self.system   
+        return system   
        
 
 
@@ -192,29 +222,6 @@ class models():
 
         return system
     
-    def diff_drive(self, states, u):
-        """
-        Differential Drive model.
-        Input: x - state vector (x, y, theta)
-               u - controls (speed, steering_angle)
-               params - parameters (wheel radius)
-        Output: system - system states
-        """
-        r = 0.05
-        L = 0.1
-        
-        x = states[0][0]
-        y = states[1][0]
-        phi = states[2][0]
-        
-
-        v = u[0]
-        df = u[1]
-        system = np.array([[r*v*np.cos(phi)],
-                           [r*v*np.sin(phi)],
-                           [truncate_angle( r*df/L)]])
-    
-        return system
     
     def simple_bicycle_jacobian(self, x, u, params):
         """
