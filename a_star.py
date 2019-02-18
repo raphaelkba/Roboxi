@@ -9,7 +9,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-def calc_heuristic(pos, goal):
+def calculate_heuristic(pos, goal):
     w = 1.0  # weight of heuristic
     d = w * math.sqrt((pos[0] - goal[0])**2 + (pos[1] - goal[1])**2)
     return d      
@@ -79,7 +79,7 @@ class a_star:
                         if x2 >= 0 and x2 < len(grid) and y2 >=0 and y2 < len(grid[0]):
                             if closed[x2][y2] == 0 and grid[x2][y2] == 0:
                                 g2 = g + possible_movements[i][2] 
-                                f = g2 + calc_heuristic([x2,y2],goal)
+                                f = g2 + calculate_heuristic([x2,y2],goal)
                                 open.append([f, g2, x2, y2])
                                 closed[x2][y2] = 1
                                 deltas[x2][y2] = i

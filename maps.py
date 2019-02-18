@@ -39,8 +39,8 @@ class maps():
     # add obstacle center and size
     def add_obstacle_square(self, obstacle_x, obstacle_y, size):
         size = size/self.resolution
-        for i in range(int(obstacle_x - size/2), int(obstacle_x + size/2)):
-            for j in range(int(obstacle_y - size/2), int(obstacle_y + size/2)):            
+        for i in range(int(obstacle_x/self.resolution - size/2), int(obstacle_x/self.resolution + size/2)):
+            for j in range(int(obstacle_y/self.resolution - size/2), int(obstacle_y/self.resolution + size/2)):            
                 self.x.append(i)
                 self.y.append(j)
     
@@ -53,8 +53,8 @@ class maps():
             grid[int((self.x[i]-self.min_lim_x))][int((self.y[i]-self.min_lim_y))] = 1
         return grid
         
-    def plot_map(self):
-        animation.plot_map(np.asarray(self.x)*np.asarray(self.resolution), np.asarray(self.y)*np.asarray(self.resolution))
+    def plot_map(self, axis):
+        animation.plot_map(np.asarray(self.x)*np.asarray(self.resolution), np.asarray(self.y)*np.asarray(self.resolution), axis)
         
         
         

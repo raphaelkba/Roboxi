@@ -24,3 +24,10 @@ class utils():
         while angle < 0.0:
             angle += math.pi * 2
         return ((angle + math.pi) % (math.pi * 2)) - math.pi
+    
+    def constrain_value(value, min_value, max_value):
+        if value < min_value:
+            value = min_value
+        elif value > max_value:
+            value = max_value
+        return value

@@ -45,8 +45,8 @@ class models():
         Output: system - system states
         """
         L = 4.5
-        max_vel = 10.0
-        min_vel = -10.0
+        max_vel = 50.0
+        min_vel = -50.0
 
         v = u[0]
         df = math.atan(u[1]*L/v)
@@ -164,6 +164,8 @@ class models():
             w = min_vel
         elif w > max_vel:
             w = max_vel
+            
+
             
         x = states[0][0]
         y = states[1][0]
@@ -294,12 +296,12 @@ def truncate_angle(angle):
         angle += math.pi * 2
     return ((angle + math.pi) % (math.pi * 2)) - math.pi
     
-def constrain_angle(angle, max_value, min_value):
+def constrain_angle(angle, min_value, max_value):
     if angle < min_value:
         angle = min_value
     elif angle > max_value:
         angle = max_value
-    return angle
+#    return angle
       
 
         

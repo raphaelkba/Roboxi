@@ -15,7 +15,7 @@ from utils import utils
 from animation import animation      
 from maps import maps
 from a_star import a_star
-
+from robots import robots
 
 
 if __name__ == '__main__':
@@ -25,17 +25,17 @@ if __name__ == '__main__':
     time = 0.0
     dT = 0.1
     anime = animation()
-    lookahead_idx = 10
+    lookahead_idx = 15
     ######## Initialize map ########
     resolution = 0.1 # map resolution
-    min_x = -10 # minimum map limit x axis
-    max_x = 10 # maximum map limit x axis
+    min_x = -20 # minimum map limit x axis
+    max_x = 20 # maximum map limit x axis
     min_y = -20 # minimum map limit y axis   
     max_y = 20 # maximum map limit y axis
     maps = maps(resolution, min_x, max_x, min_y, max_y) 
     # add obstacles    
-    maps.add_obstacle_square(3,12,1)
-    maps.add_obstacle_square(0,0,2)
+    maps.add_obstacle_square(4,6,5)
+    maps.add_obstacle_square(-2,0,2)
     # get grid map    
     grid = maps.make_grid()
     
@@ -44,21 +44,20 @@ if __name__ == '__main__':
     
     states = np.array([[-8.0],
                        [-8.0],
-                      [0.0],
-                      [0.0]])
+                      [0.0]])#,
+                     # [0.0],
 #                      [0.0]])
     
     controls = np.array([0.0, 0.0])
     
-    goal = np.array([5.0, 2.0, 0.0])
+    goal = np.array([15.0, 17.0, 0.0])
     
-    goal_final = np.array([5.0, 2.0, 0.0])
+    goal_final = np.array([15.0, 17.0, 0.0])
     
     ######## Choose model ########
-#    robot = models("simple bicycle", states, dT)
-    robot = models("front wheel bicycle", states, dT)
-    control_gain = np.array([1.0, 100.0, 0.0, 1.0, -0.0])
-    control_gain = np.array([1.0, 0.0, 0.0, 2.0, -1.0])
+    robot = models("simple bicycle", states, dT)
+    #robot = models("front wheel bicycle", states, dT)
+#    control_gain = np.array([1.0, 100.0, 0.0, 1.0, -0.0])
     states_history = states
     controls_history = controls
     
@@ -76,39 +75,21 @@ if __name__ == '__main__':
     path_ = [path_x[::-1], path_y[::-1]]
     path = path_
     
+    simple_bicycle = robots("simple bicycle", states, controls, path_, dT)    
+    
     print("Start Simulation")
     while utils.euclidean_distance(goal_final, states) > 0.1:# and (goal_final[2] - states[2]) < 0.01):
 
-        path_, goal = control.look_ahead(path_, goal_final, states, lookahead_idx)
+        simple_bicycle.run()
 
-        pid = control.simple_control(control_gain, states, goal)
         #pid = control.LQR_Bicycle(states, goal, dT)
-        pid[1] = (pid[1] - states[2][0])/dT
-        states = robot.runge_kutta_solver(states, dT, dT/10, pid)
+        #pid[1] = (pid[1] - states[2][0])/dT # front wheel drive
         
-        
-        states[2][0] = utils.truncate_angle(states[2][0])
-
-
-        max_df = math.pi/3
-        min_df = -math.pi/3
-#        if states[3][0] < -50.0:
-#            states[3][0] = -50.0
-#        elif states[3][0] > 50.0:
-#            states[3][0] = 50.0
-        if states[3][0] < min_df:
-            states[3][0] = min_df
-        elif states[3][0] > max_df:
-            states[3][0] = max_df
-        print(states)
-        
-        
-        states_history = np.hstack((states_history, states))
-        
-
-#        time += dT
+        states_history = np.hstack((states_history, simple_bicycle.states))
+        controls_history = np.hstack((controls_history, simple_bicycle.controls))
+        time += dT
 
 
         if play_animation:
-            anime.animate(states_history, goal, path, maps, pid)         
+            anime.animate(states_history, simple_bicycle.goal, path, maps, simple_bicycle.controls)         
     print("Simulation Finished")

@@ -205,11 +205,11 @@ class controllers():
                 goal[0] = path[0][i+lookahead_idx]
                 goal[1] = path[1][i+lookahead_idx]
                 if len(path[0]) > lookahead_idx+1:
-                    goal[2] = math.atan2(path[1][i+int(2)]-path[1][i], path[0][i+int(2)]- path[0][i])
+                    goal[2] = math.atan2(path[1][i+int(1)]-path[1][i], path[0][i+int(1)]- path[0][i])
                 else:
                     goal[0] = goal_final[0]
                     goal[1] = goal_final[1]
-                    goal[2] = math.atan2(path[1][i+int(2)]-path[1][i], path[0][i+int(2)]- path[0][i])
+                    goal[2] = math.atan2(path[1][i+int(1)]-path[1][i], path[0][i+int(1)]- path[0][i])
         for i in range(idx):
             path = np.delete(path,[i],1)
         return path, goal
