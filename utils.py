@@ -3,9 +3,6 @@ import math
 
 class utils():
     
-    def __init__(self):
-        pass
-    
     def euclidean_distance(vec1, vec2):
         #Computes the euclidean distance between two points x and y.
         x1, y1 = vec1[0:2]
@@ -31,3 +28,11 @@ class utils():
         elif value > max_value:
             value = max_value
         return value
+
+    def find_closest_point(nodes, curr_node):
+
+        distances = [(node[0] - curr_node[0]) ** 2 + (node[1] - curr_node[1])
+                 ** 2 for node in nodes]
+        return nodes[distances.index(min(distances))], distances.index(min(distances))
+        
+

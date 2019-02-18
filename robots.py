@@ -28,7 +28,7 @@ class simple_bicycle():
         self.max_steering_angle = math.pi/3
         self.min_steering_angle = -math.pi/3
         self.gains = np.array([1.0, 1.0, -0.5])
-        self.lookahead_idx = 20
+        self.lookahead_idx = 2
         
     def model(self, states, u):
         """
@@ -133,6 +133,7 @@ class robots():
         """
         min_dist = float('inf')
         dist = 0.0
+        idx = 0
         goal = [0.0, 0.0, 0.0]
         for i in range(len(self.path[0])-lookahead_idx): # find closest path point 
             dist = utils.euclidean_distance((self.path[0][i],self.path[1][i]), self.states)

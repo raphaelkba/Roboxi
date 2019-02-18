@@ -7,7 +7,6 @@ E-Mail : raphael_kba@hotmail.com
 
 import matplotlib.pyplot as plt
 import numpy as np
-import math
 
 from models import models
 from controllers import controllers
@@ -16,30 +15,23 @@ from animation import animation
 from maps import maps
 from a_star import a_star
 from robots import robots
-
+from RRT import RRT
 
 if __name__ == '__main__':
     # Initialize simulation parameters
     plt.close("all")
-    play_animation = True    
     time = 0.0
     dT = 0.1
     anime = animation()
-    lookahead_idx = 15
-    ######## Initialize map ########
+    ###################### Initialize map ###################### 
     resolution = 0.1 # map resolution
-    min_x = -20 # minimum map limit x axis
-    max_x = 20 # maximum map limit x axis
-    min_y = -20 # minimum map limit y axis   
-    max_y = 20 # maximum map limit y axis
-    maps = maps(resolution, min_x, max_x, min_y, max_y) 
-    # add obstacles    
-    maps.add_obstacle_square(4,6,5)
-    maps.add_obstacle_square(-2,0,2)
-    # get grid map    
-    grid = maps.make_grid()
+    map_limits = [-20, 20, -20, 20] # [min_x, max_x, min_y, max_y]
+    obstacles = ([4, 6, 5],
+                 [0, 0, 2])    
+    maps = maps(resolution, map_limits, obstacles, 2.25) 
+    grid = maps.make_grid() # get grid map with inflated obstacles
     
-    ######## Initialize controls and model ########
+    ###################### Initialize controls and states ###################### 
     control = controllers()
     
     states = np.array([[-8.0],
@@ -49,37 +41,39 @@ if __name__ == '__main__':
 #                      [0.0]])
     
     controls = np.array([0.0, 0.0])
-    
     goal = np.array([15.0, 17.0, 0.0])
-    
-    goal_final = np.array([15.0, 17.0, 0.0])
-    
-    ######## Choose model ########
+        
+    ###################### Choose model ###################### 
     robot = models("simple bicycle", states, dT)
     #robot = models("front wheel bicycle", states, dT)
 #    control_gain = np.array([1.0, 100.0, 0.0, 1.0, -0.0])
     states_history = states
     controls_history = controls
     
-    ######## Initialize path planning ########    
+    ###################### Initialize path planning ###################### 
     planner = a_star()    
     # grid map begins at [0,0]
-    init = [int((states[0] - min_x)/resolution), int((states[1] - min_y)/resolution)]
-    end = [int((goal[0] - min_x)/resolution), int((goal[1] - min_y)/resolution)]
+    init = [int((states[0] - map_limits[0])/resolution), int((states[1] - map_limits[2])/resolution)]
+    end = [int((goal[0] - map_limits[0])/resolution), int((goal[1] - map_limits[2])/resolution)]
     
     path, action_map = planner.astar_search(grid,init,end)
     
+    rrt = RRT(states, goal, obstacles, map_limits, 1.0, 10, 10000)
+    path = rrt.initialize_RRT()
+    
     # readjust to normal coordinater
-    path_x = np.array(path[:,0]*resolution + min_x)
-    path_y = np.array(path[:,1]*resolution + min_y)
+#    path_x = np.array(path[:,0]*resolution + map_limits[0])
+#    path_y = np.array(path[:,1]*resolution + map_limits[2])
+    path_x = np.array(path[:,0])
+    path_y = np.array(path[:,1])
     path_ = [path_x[::-1], path_y[::-1]]
     path = path_
     
-    simple_bicycle = robots("simple bicycle", states, controls, path_, dT)    
+    simple_bicycle = robots("simple bicycle", states, controls, path, dT)    
     
     print("Start Simulation")
-    while utils.euclidean_distance(goal_final, states) > 0.1:# and (goal_final[2] - states[2]) < 0.01):
-
+    while utils.euclidean_distance(goal, states) > 0.1:
+        
         simple_bicycle.run()
 
         #pid = control.LQR_Bicycle(states, goal, dT)
@@ -89,7 +83,7 @@ if __name__ == '__main__':
         controls_history = np.hstack((controls_history, simple_bicycle.controls))
         time += dT
 
-
         if play_animation:
             anime.animate(states_history, simple_bicycle.goal, path, maps, simple_bicycle.controls)         
+    
     print("Simulation Finished")

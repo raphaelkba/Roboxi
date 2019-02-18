@@ -27,14 +27,7 @@ class animation():
             [np.sin(theta), np.cos(theta), y],
             [0, 0, 1]
             ])
-          
-    def show_image(self, states):
-        img = mpimg.imread('r2d2.png')
-         
-        rotation_in_degrees = math.degrees(states[2])
-        rotated_img = ndimage.rotate(img, rotation_in_degrees, cval = 255)
-        plt.imshow(rotated_img, extent=(states[0] - 0.25, states[0] + 0.25, states[1] - 0.25, states[1] + 0.25))
-          
+                   
     def plot_pose(self, pose, color):
         self.ax.plot(pose[0],pose[1], color)
         self.ax.arrow(pose[0], pose[1], np.cos(pose[2]), np.sin(pose[2]), color=color, width=0.005)
@@ -42,7 +35,7 @@ class animation():
         
     def animate(self, states_history, goal, path, maps, controls):
         self.ax.cla()
-        self.plot_car(states_history[0][-1], states_history[1][-1], states_history[2][-1], controls[1], 2.5)
+        self.plot_car(states_history[0][-1], states_history[1][-1], states_history[2][-1], controls[1], 4.5)
 
         self.ax.plot(states_history[0][:], states_history[1][:], ".b")
         self.ax.plot(path[0], path[1], '.g')
@@ -60,7 +53,7 @@ class animation():
 
                   
     def plot_map(x, y, axis):
-        axis.plot(x,y,".b")
+        axis.plot(x, y, ".b")
         
         
     def plot_car(self,x, y, yaw, steer=0.0, carlength=4.5):
