@@ -50,7 +50,7 @@ class RRT():
                 break
         
         path = self.find_path()
-#        self.DrawGraph()
+
 #        plt.plot([x for (x, y) in path], [y for (x, y) in path], '-r')
 #        plt.pause(0.01)
 #        plt.show()
@@ -84,23 +84,3 @@ class RRT():
         path.append([self.start[0][0], self.start[1][0]])
         return path        
         
-    def DrawGraph(self, rnd=None):  # pragma: no cover
-        """
-        Draw Graph
-        """
-        plt.clf()
-        if rnd is not None:
-            plt.plot(rnd[0], rnd[1], "^k")
-        for node in self.nodes:
-            if node[2] is not -1:
-                plt.plot([node[0], self.nodes[node[2]][0]],
-                         [node[1], self.nodes[node[2]][1]], "-g")
-
-        for (ox, oy, size) in self.obstacles:
-            plt.plot(ox, oy, "ok", ms=30 * size)
-
-        plt.plot(self.start[0], self.start[1], "xr")
-        plt.plot(self.goal[0], self.goal[1], "xr")
-        plt.axis([-2, 15, -2, 15])
-        plt.grid(True)
-        plt.pause(0.01)
