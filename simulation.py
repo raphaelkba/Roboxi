@@ -22,13 +22,13 @@ if __name__ == '__main__':
     # Initialize simulation parameters
     plt.close("all")
     time = 0.0
-    dT = 0.1
+    dT = 0.01
     anime = animation()
     play_animation = True
     ###################### Initialize map ###################### 
     resolution = 0.1 # map resolution
     map_limits = [-20, 20, -20, 20] # [min_x, max_x, min_y, max_y]
-    obstacles = ([4, 6, 5],
+    obstacles = ([4, 6, 3],
                  [0, 0, 2])    
     maps = maps(resolution, map_limits, obstacles, 2.25) 
     grid = maps.make_grid() # get grid map with inflated obstacles
@@ -38,12 +38,12 @@ if __name__ == '__main__':
     
     states = np.array([[-8.0],
                        [-8.0],
-                      [0.0],
+                      [np.pi*0],
                       [0.0],
                       [0.0]])
     
     controls = np.array([0.0, 0.0])
-    goal = np.array([15.0, 17.0, 0.0])
+    goal = np.array([10.0, -8.0, 0.0])
         
     ###################### Choose model ###################### 
     #robot = models("front wheel bicycle", states, dT)
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     
     path, action_map = planner.astar_search(grid,init,end)
     
-#    rrt = RRT(states, goal, obstacles, map_limits, 0.3, 10, 10000)
+#    rrt = RRT(states, goal, obstacles, map_limits, 0.5, 10, 10000)
 #    path = rrt.initialize_RRT()
     
     # readjust to normal coordinater
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     simple_bicycle_test = extended_bicycle("simple bicycle", states, controls, path, dT)
     
     print("Start Simulation")
-    while utils.euclidean_distance(goal, states) > 0.1:
+    while utils.euclidean_distance(goal, simple_bicycle_test.states) > 0.1:
         
         simple_bicycle_test.run()
 
