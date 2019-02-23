@@ -15,6 +15,7 @@ from animation import animation
 from maps import maps
 from a_star import a_star
 from robots import robots
+from robots import diff_drive, extended_bicycle
 from RRT import RRT
 
 if __name__ == '__main__':
@@ -23,6 +24,7 @@ if __name__ == '__main__':
     time = 0.0
     dT = 0.1
     anime = animation()
+    play_animation = True
     ###################### Initialize map ###################### 
     resolution = 0.1 # map resolution
     map_limits = [-20, 20, -20, 20] # [min_x, max_x, min_y, max_y]
@@ -36,15 +38,14 @@ if __name__ == '__main__':
     
     states = np.array([[-8.0],
                        [-8.0],
-                      [0.0]])#,
-                     # [0.0],
-#                      [0.0]])
+                      [0.0],
+                      [0.0],
+                      [0.0]])
     
     controls = np.array([0.0, 0.0])
     goal = np.array([15.0, 17.0, 0.0])
         
     ###################### Choose model ###################### 
-    robot = models("simple bicycle", states, dT)
     #robot = models("front wheel bicycle", states, dT)
 #    control_gain = np.array([1.0, 100.0, 0.0, 1.0, -0.0])
     states_history = states
@@ -58,32 +59,32 @@ if __name__ == '__main__':
     
     path, action_map = planner.astar_search(grid,init,end)
     
-    rrt = RRT(states, goal, obstacles, map_limits, 1.0, 10, 10000)
-    path = rrt.initialize_RRT()
+#    rrt = RRT(states, goal, obstacles, map_limits, 0.3, 10, 10000)
+#    path = rrt.initialize_RRT()
     
     # readjust to normal coordinater
-#    path_x = np.array(path[:,0]*resolution + map_limits[0])
-#    path_y = np.array(path[:,1]*resolution + map_limits[2])
-    path_x = np.array(path[:,0])
-    path_y = np.array(path[:,1])
+    path_x = np.array(path[:,0]*resolution + map_limits[0])
+    path_y = np.array(path[:,1]*resolution + map_limits[2])
+#    path_x = np.array(path[:,0])
+#    path_y = np.array(path[:,1])
     path_ = [path_x[::-1], path_y[::-1]]
     path = path_
     
-    simple_bicycle = robots("simple bicycle", states, controls, path, dT)    
+    simple_bicycle_test = extended_bicycle("simple bicycle", states, controls, path, dT)
     
     print("Start Simulation")
     while utils.euclidean_distance(goal, states) > 0.1:
         
-        simple_bicycle.run()
+        simple_bicycle_test.run()
 
         #pid = control.LQR_Bicycle(states, goal, dT)
         #pid[1] = (pid[1] - states[2][0])/dT # front wheel drive
         
-        states_history = np.hstack((states_history, simple_bicycle.states))
-        controls_history = np.hstack((controls_history, simple_bicycle.controls))
+        states_history = np.hstack((states_history, simple_bicycle_test.states))
+        controls_history = np.hstack((controls_history, simple_bicycle_test.controls))
         time += dT
 
         if play_animation:
-            anime.animate(states_history, simple_bicycle.goal, path, maps, simple_bicycle.controls)         
+            anime.animate(states_history, simple_bicycle_test.goal, path, maps, simple_bicycle_test.controls)         
     
     print("Simulation Finished")

@@ -40,7 +40,7 @@ class animation():
         self.ax.plot(states_history[0][:], states_history[1][:], ".b")
         self.ax.plot(path[0], path[1], '.g')
         
-        self.plot_pose(states_history[:,-1], 'b')
+#        self.plot_pose(states_history[:,-1], 'b')
         self.plot_pose(goal, 'r')
         
         maps.plot_map(self.ax)
