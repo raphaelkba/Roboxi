@@ -13,18 +13,18 @@ from utils import utils
 from animation import animation      
 from maps import maps
 from a_star import a_star
-from robots import diff_drive, extended_bicycle, front_wheel_drive
+from robots import diff_drive, extended_bicycle, front_wheel_drive, simple_bicycle
 from RRT import RRT
 
 if __name__ == '__main__':
     # Initialize simulation parameters
     plt.close("all")
     time = 0.0
-    dT = 0.01
+    dT = 0.1
     anime = animation()
     play_animation = True
     ###################### Initialize map ###################### 
-    resolution = 1 # map resolution
+    resolution = 0.1 # map resolution
     map_limits = [-20, 20, -20, 20] # [min_x, max_x, min_y, max_y]
     obstacles = ([4, 6, 3],
                  [0, 0, 2])    
@@ -33,17 +33,20 @@ if __name__ == '__main__':
     grid = maps.make_grid() # get grid map with inflated obstacles
     
     ###################### Initialize controls and states ###################### 
-    control = controllers()
     
-    states = np.array([[-8.0],
-                       [-8.0],
-                      [0*np.pi],[0]])
-#                      
 #    states = np.array([[-8.0],
 #                       [-8.0],
-#                      [np.pi*0],
-#                      [0.0],
-#                      [0.0]])
+#                      [0*np.pi],[0]])
+                      
+#    states = np.array([[-8.0],
+#                       [-8.0],
+#                      [0*np.pi]])
+                      
+    states = np.array([[-8.0],
+                       [-8.0],
+                      [np.pi*0],
+                      [0.0],
+                      [0.0]])
     
     controls = np.array([0.0, 0.0])
     goal = np.array([10.0, 8.0, 0.0])
@@ -61,17 +64,22 @@ if __name__ == '__main__':
     
     
     ###################### Initialize model ###################### 
-    simple_bicycle_test = front_wheel_drive("simple bicycle", states, controls, path, dT)
+    robot = extended_bicycle("RK2", states, controls, path, dT)
+    control = controllers(robot.gains)    
+    
     
     print("Start Simulation")
-    while utils.euclidean_distance(goal, simple_bicycle_test.states) > 0.1:
+    while utils.euclidean_distance(goal, robot.states) > 0.1:
         
-        simple_bicycle_test.run()        
-        states_history = np.hstack((states_history, simple_bicycle_test.states))
-        controls_history = np.hstack((controls_history, simple_bicycle_test.controls))
+
+        robot.controls = control.lqr_control(robot)
+        robot.run()      
+        
+        states_history = np.hstack((states_history, robot.states))
+        controls_history = np.hstack((controls_history, robot.controls))
         time += dT
 
         if play_animation:
-            anime.animate(states_history, simple_bicycle_test.goal, path, maps, simple_bicycle_test.controls)         
+            anime.animate(states_history, robot.goal, path, maps, robot.controls)         
     
     print("Simulation Finished")

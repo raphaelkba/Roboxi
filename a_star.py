@@ -25,7 +25,7 @@ class a_star(Planner):
         self.init = [int((states[0] - map_limits[0])/resolution), int((states[1] - map_limits[2])/resolution)]
         self.goal = [int((goal[0] - map_limits[0])/resolution), int((goal[1] - map_limits[2])/resolution)]
         super().__init__(self.init, self.goal, map_limits)
-        
+        self.planner_animation = False
         
     def plan(self, grid):
         # x,y, cost
@@ -83,8 +83,9 @@ class a_star(Planner):
                                 closed[x2][y2] = 1
                                 deltas[x2][y2] = i
                                 grid_plot[x2][y2] = 1
-                                
-                self.animation(open_list, next_item, grid_plot)
+                
+                if self.planner_animation:                
+                    self.animation(open_list, next_item, grid_plot)
                 
         path = self.find_path(possible_movements, deltas, action, grid_plot)
         
@@ -107,10 +108,11 @@ class a_star(Planner):
         
         
         path = np.array(path) 
-        for i in reversed(range(len(path))):            
-            grid_plot[path[i][0]][path[i][1]] = 20+i
-            self.ax.matshow(np.rot90(np.array(grid_plot)))      
-            plt.pause(0.001)   
+        if self.planner_animation:        
+            for i in reversed(range(len(path))):            
+                grid_plot[path[i][0]][path[i][1]] = 20+i
+                self.ax.matshow(np.rot90(np.array(grid_plot)))      
+                plt.pause(0.001)   
         path_x = path[:,0]*self.resolution + self.min_lim_x
         path_y = path[:,1]*self.resolution + self.min_lim_y 
         path = [path_x[::-1], path_y[::-1]]

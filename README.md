@@ -5,9 +5,9 @@ We plan to cover the main areas in robotics such as perception, localization, ma
 ## Models
 The following models are currently available for the simulation:
 * Simple car/bicycle model
-* Differential Drive (progress)
-* Extended Bicycle Kinematic model (progress)
-* Front wheel drive (progress)
+* Differential Drive
+* Extended Bicycle Kinematic model
+* Front wheel drive
 * Bicycle Dynamic model (todo)
 * ...
 
@@ -44,13 +44,13 @@ For each model one or more controllers can be used.
 	* Simple pose controller
 	* Linear Quadratic Regulator (Todo)
 * Differential Drive (Todo)
-	* Simple pose controller (Todo)
+	* Simple pose controller 
 	* Linear Quadratic Regulator (Todo)
 * Extended Bicycle Kinematic model (Todo)
-	* Simple pose controller (Todo)
+	* Simple pose controller 
 	* Linear Quadratic Regulator (Todo)
 * Front wheel drive (Todo)
-	* Simple pose controller (Todo)
+	* Simple pose controller 
 	* Linear Quadratic Regulator (Todo)
 * MPC and IT-MPC (todos for any model)
 * ...
@@ -64,5 +64,6 @@ Additional ideas for the future, when all basic part are implemented
 
 ### Next todos
 * OOP
-* transfer the models and controller to robots
-* make an upper class planners
+* controller class
+* plot a diff robot
+* plor RRT
