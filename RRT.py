@@ -50,11 +50,11 @@ class RRT():
                 break
         
         path = self.find_path()
+        path_x = np.array(path[:,0])
+        path_y = np.array(path[:,1])
+        path = [path_x[::-1], path_y[::-1]]
 
-#        plt.plot([x for (x, y) in path], [y for (x, y) in path], '-r')
-#        plt.pause(0.01)
-#        plt.show()
-        return np.array(path)
+        return path
         
     def extend(self, xrand, closest_node, closest_idx):
         orientation = math.atan2(xrand[1] - closest_node[1], xrand[0] - closest_node[0]) 
@@ -82,5 +82,5 @@ class RRT():
             path.append([self.nodes[idx][0][0], self.nodes[idx][1][0]])
             idx = self.nodes[idx][2]
         path.append([self.start[0][0], self.start[1][0]])
-        return path        
+        return np.array(path)
         

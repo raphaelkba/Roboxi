@@ -66,7 +66,7 @@ class maps():
         size_y = self.max_lim_y - self.min_lim_y
         grid = [[0 for col in range(int(size_y)+1)] for row in range(int(size_x)+1)]
         for i in range(len(self.x_inflated)-1):
-            grid[int((self.x_inflated[i]-self.min_lim_x))][int((self.y_inflated[i]-self.min_lim_y))] = 1
+            grid[int((self.x_inflated[i]-self.min_lim_x))][int((self.y_inflated[i]-self.min_lim_y))] = 50
         return grid
         
     def plot_map(self, axis):

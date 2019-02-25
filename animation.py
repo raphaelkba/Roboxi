@@ -20,13 +20,6 @@ class animation():
     def __init__(self):
         self.fig, self.ax = plt.subplots()
 
-
-    def transformation_matrix(self, x, y, theta):
-        return np.array([
-            [np.cos(theta), -np.sin(theta), x],
-            [np.sin(theta), np.cos(theta), y],
-            [0, 0, 1]
-            ])
                    
     def plot_pose(self, pose, color):
         self.ax.plot(pose[0],pose[1], color)
