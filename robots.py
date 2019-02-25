@@ -308,129 +308,14 @@ class extended_bicycle(robots):
         error = [[0],[0],[0],[0],[0]]
         error[0] = self.states[0][0] - self.goal[0]
         error[1] = self.states[1][0] - self.goal[1]
-        error[2] = - angle_to_point
+        error[2] = - angle_to_point + 0.1*beta
         error[3] = self.states[3][0] - 0.0
-        error[4] = - angle_to_point
+        error[4] = - angle_to_point + 0.1*beta
         
         self.previous_error = distance
         self.previous_angle_error = angle_to_point
         return error
        
-    def lqr_control(self, states, reference):
-        self.Q = np.eye(5)
-        self.Q[0, 0] = 1.0
-        self.Q[1, 0] = 1.0
-        self.Q[2, 0] = 1.0
-        self.Q[3, 0] = 1.0
-        self.Q[4, 0] = 1.0
-        self.R = np.eye(2)*100.0
-        ######## Linearization ########
-        L = 4.5
-        
-        theta = states[2][0]
-        v = states [3][0]        
-        phi = states[4][0]
-        
-        A = np.zeros((5, 5))
-        A[0, 0] = 1.0
-        A[0, 1] = 0.0
-        A[0, 2] = -self.dT*v*np.sin(theta)
-        A[0, 3] = self.dT*np.cos(theta)
-        A[0, 4] = 0
-        A[1, 0] = 0.0
-        A[1, 1] = 1.0
-        A[1, 2] = self.dT*v*np.cos(theta)
-        A[1, 3] = self.dT*np.sin(theta)
-        A[1, 4] = 0.0
-        A[2, 0] = 0.0
-        A[2, 1] = 0.0
-        A[2, 2] = 1.0
-        A[2, 3] = self.dT*np.tan(phi)/L
-        A[2, 4] = self.dT*v/(np.cos(phi)*np.cos(phi)*L)
-        A[3, 0] = 0.0        
-        A[3, 1] = 0.0    
-        A[3, 2] = 0.0
-        A[3, 3] = 1.0        
-        A[3, 4] = 0.0
-        A[4, 0] = 0.0       
-        A[4, 1] = 0.0        
-        A[4, 2] = 0.0        
-        A[4, 3] = 0.0        
-        A[4, 4] = 1.0        
-        
-        A[0, 0] = 1.0
-        A[0, 1] = self.dT
-        A[0, 2] = 0.0
-        A[0, 3] = 0.0
-        A[0, 4] = 0.0
-        A[1, 0] = 0.0
-        A[1, 1] = 0.0
-        A[1, 2] = v*phi
-        A[1, 3] = 0.0
-        A[1, 4] = 0.0
-        A[2, 0] = 0.0
-        A[2, 1] = 0.0
-        A[2, 2] = 1.0
-        A[2, 3] = self.dT
-        A[2, 4] = 0.0
-        A[3, 0] = 0.0        
-        A[3, 1] = 0.0    
-        A[3, 2] = 0.0
-        A[3, 3] = 0.0        
-        A[3, 4] = 1.0
-        A[4, 0] = 0.0       
-        A[4, 1] = 0.0        
-        A[4, 2] = 0.0        
-        A[4, 3] = 0.0        
-        A[4, 4] = 0.0        
-        
-        B = np.zeros((5, 2))
-        B[3, 0] = v/self.L
-        B[4, 1] = self.dT
-
-        ######## DARE ########
-        X = self.Q
-        maxiter = 300
-        eps = 0.001
-    
-        for i in range(maxiter):
-            
-            X_ = np.dot(np.dot(A.T, X), A) -\
-            np.dot(np.dot(np.dot(np.dot(np.dot(np.dot(A.T, X), B), \
-            np.linalg.inv(self.R + np.dot(np.dot(B.T, X), B))), B.T), X),A) \
-            + self.Q  #@
-
-            if (abs(X_ - X)).max() < eps:
-                break
-            X = X_
-        
-        ######## LQR solution ########
-        lqr_k = np.dot(np.linalg.inv(np.dot(np.dot(B.T, X),B) + self.R), np.dot(np.dot(B.T,X),A))
-        
-        angle_to_point = (utils.angle_between_points(states, reference) - states[2][0] + math.pi)%(2.0*math.pi) - math.pi
-        beta = (reference[2] - states[2][0] - angle_to_point + math.pi) % (2.0 * math.pi) - math.pi
-        # derivative term for angle control         
-        error_diff = angle_to_point - self.error_old
-        self.error_old = angle_to_point        
-        distance =- utils.euclidean_distance(states, reference)
-        
-        error = [[0],[0],[0],[0],[0]]
-        error[0] = distance
-        error[1] = (distance - self.previous_error)/self.dT
-        error[2] = angle_to_point
-        error[3] = (angle_to_point - self.previous_angle_error)/self.dT
-        error[4] = v - 0.0
-        
-        self.previous_error = distance
-        self.previous_angle_error = angle_to_point
-        
-        ustar = -lqr_k @ error
-        
-        # calc steering input
-        delta = utils.truncate_angle(ustar[0])
-        ai = ustar[1]
-
-        return np.array([ai, delta])     
      
     def system_constraints(self, states, controls):
         states[2][0] = utils.truncate_angle(states[2][0]) # orientation from -pi to pi 

@@ -39,7 +39,7 @@ class animation():
         maps.plot_map(self.ax)
 
         self.ax.grid(True)
-        plt.pause(0.1)
+        plt.pause(0.001)
         self.ax.axis('equal')
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()

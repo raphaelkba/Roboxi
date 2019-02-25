@@ -56,14 +56,14 @@ if __name__ == '__main__':
     controls_history = controls
     
     ###################### Initialize path planning ###################### 
-    planner = a_star(resolution, map_limits, states, goal)    
-    path = planner.plan(grid)
+#    planner = a_star(resolution, map_limits, states, goal)    
+#    path = planner.plan(grid)
     
-#    rrt = RRT(states, goal, obstacles, map_limits, 0.5, 10, 10000)
-#    path = rrt.initialize_RRT()
+    rrt = RRT(states, goal, obstacles, map_limits, 0.2, 10000)
+    path = rrt.plan()
     
     
-    ###################### Initialize model ###################### 
+    ################ Initialize model and control ################# 
     robot = extended_bicycle("RK2", states, controls, path, dT)
     control = controllers(robot.gains)    
     
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     while utils.euclidean_distance(goal, robot.states) > 0.1:
         
 
-        robot.controls = control.lqr_control(robot)
+        robot.controls = control.lqr_vel_steer_control(robot)
         robot.run()      
         
         states_history = np.hstack((states_history, robot.states))
