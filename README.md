@@ -43,13 +43,13 @@ For each model one or more controllers can be used.
 * Simple car/bicycle model
 	* Simple pose controller
 	* Linear Quadratic Regulator (Todo)
-* Differential Drive (Todo)
+* Differential Drive 
 	* Simple pose controller 
-	* Linear Quadratic Regulator (Todo)
-* Extended Bicycle Kinematic model (Todo)
+	* Linear Quadratic Regulator
+* Extended Bicycle Kinematic model 
 	* Simple pose controller 
-	* Linear Quadratic Regulator (Todo)
-* Front wheel drive (Todo)
+	* Linear Quadratic Regulator
+* Front wheel drive 
 	* Simple pose controller 
 	* Linear Quadratic Regulator (Todo)
 * MPC and IT-MPC (todos for any model)
@@ -63,7 +63,7 @@ Additional ideas for the future, when all basic part are implemented
 * ...
 
 ### Next todos
-* OOP
-* controller class
-* plot a diff robot
-* plor RRT
+* kalman filter
+* graph slam
+* round obstacles
+* change everything to numpy!

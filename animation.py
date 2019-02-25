@@ -26,15 +26,15 @@ class animation():
         self.ax.arrow(pose[0], pose[1], np.cos(pose[2]), np.sin(pose[2]), color=color, width=0.005)
           
         
-    def animate(self, states_history, goal, path, maps, controls):
+    def animate(self, states_history, robot, path, maps):
         self.ax.cla()
-        self.plot_car(states_history[0][-1], states_history[1][-1], states_history[2][-1], controls[1], 4.5)
-
+#        self.plot_car(robot.x, robot.y, robot.theta, robot.steering_angle, 4.5)
+        self.plot_diff_driver(robot.x, robot.y, robot.theta, robot.steering_angle, 1.0, 0.2)
         self.ax.plot(states_history[0][:], states_history[1][:], ".b")
         self.ax.plot(path[0], path[1], '.g')
         
 #        self.plot_pose(states_history[:,-1], 'b')
-        self.plot_pose(goal, 'r')
+        self.plot_pose(robot.goal, 'r')
         
         maps.plot_map(self.ax)
 
@@ -48,10 +48,31 @@ class animation():
     def plot_map(x, y, axis):
         axis.plot(x, y, ".b")
         
+      
+    def plot_diff_driver(self, x, y, yaw, steer=0.0, robot_length=0.1, wheel_radius = 0.05): 
+        # plot diff driver as a circle
+        robot = mpatches.Circle((x,y), robot_length, color='red')   
+        self.ax.add_patch(robot)
+        # plot wheels
+        wheel_1 = mpatches.FancyBboxPatch((-robot_length/2, 0), wheel_radius/2, wheel_radius,
+            boxstyle=mpatches.BoxStyle("Round", pad=0.01),color='black')       
         
-    def plot_car(self,x, y, yaw, steer=0.0, carlength=4.5):
+        wheel_2 = mpatches.FancyBboxPatch((robot_length/2, 0), wheel_radius/2, wheel_radius,
+            boxstyle=mpatches.BoxStyle("Round", pad=0.01),color='black')       
+        
+        t1 = mpl.transforms.Affine2D().rotate_deg(math.degrees(yaw)-90.0)
+        t2 = mpl.transforms.Affine2D().translate(x,y)
+        t = t1 + t2 + self.ax.transData
+        wheel_1.set_transform(t)
+        wheel_2.set_transform(t)
+
+        self.ax.add_patch(wheel_1)
+        self.ax.add_patch(wheel_2)
+        
+        
+        
+    def plot_car(self, x, y, yaw, steer=0.0, car_length=4.5):
         # Vehicle parameters
-        car_length = carlength  # [m]
         car_width = car_length/2.25  # [m]
         backwheel = car_length/4.5   # [m]
         wheel_length = backwheel*0.5  # [m]

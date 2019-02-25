@@ -33,6 +33,10 @@ class robots():
         self.path = path
         self.goal = []
         self.robot_name = robot
+        self.x = states[0][0]
+        self.y = states[1][0]
+        self.theta = states[2][0]
+        self.steering_angle = 0
         
             
     def model(self, states, u):
@@ -46,7 +50,13 @@ class robots():
 
     def run(self):
         pass
-
+       
+    def update_robot(self):
+        self.x = self.states[0][0]
+        self.y = self.states[1][0]
+        self.theta = self.states[2][0]
+        self.steering_angle = self.states[3][0]   
+        
     def euler_solver(self):
         """
         Euler method for solving first order degree differential equations
@@ -114,12 +124,20 @@ class simple_bicycle(robots):
         controls[1] = utils.constrain_value(controls[1], self.min_steering_angle, self.max_steering_angle) # constrain steering angle
         return states, controls
         
+    def update_robot(self):
+        self.x = self.states[0][0]
+        self.y = self.states[1][0]
+        self.theta = self.states[2][0]
+        self.steering_angle = self.controls[1]        
+        
     def run(self):
         """ simulation pipeline for running the robot one timestep """
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
+        self.update_robot()
         
-
+        
+        
 class diff_drive(robots):
 
 
@@ -196,12 +214,15 @@ class diff_drive(robots):
         states[2][0] = utils.truncate_angle(states[2][0]) # orientation from -pi to pi 
         controls[0] = utils.constrain_value(controls[0], self.min_vel, self.max_vel) # constrain velocity
         return states, controls
+
         
     def run(self):
         """ simulation pipeline for running the robot one timestep """
         self.controls[1] = (self.controls[1] - self.states[3][0])/self.dT
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
+        self.update_robot()
+
         
         
 class extended_bicycle(robots):
@@ -325,15 +346,24 @@ class extended_bicycle(robots):
         controls[0] = utils.constrain_value(controls[0], self.min_acc, self.max_acc) # constrain acc
         controls[1] = utils.constrain_value(controls[1], self.min_steering_vel, self.max_steering_vel) # constrain acc
         return states, controls
-        
+   
+    def update_robot(self):
+        self.x = self.states[0][0]
+        self.y = self.states[1][0]
+        self.theta = self.states[2][0]
+        self.steering_angle = self.states[4][0]  
+     
     def run(self):
         """ simulation pipeline for running the robot one timestep """
         self.controls[0] = (self.controls[0] - self.states[3][0])/self.dT
         self.controls[1] = (self.controls[1] - self.states[4][0])/self.dT
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
+        self.update_robot()
         
-        
+
+     
+     
 class front_wheel_drive(robots):
     
     def __init__(self, robot, states, controls, path, dT):
@@ -379,12 +409,14 @@ class front_wheel_drive(robots):
         controls[0] = utils.constrain_value(controls[0], self.min_vel, self.max_vel) # constrain velocity
         controls[1] = utils.constrain_value(controls[1], self.min_steering_vel, self.max_steering_vel) # constrain steering angle
         return states, controls
+         
+  
         
     def run(self):
         """ simulation pipeline for running the robot one timestep """
         self.controls[1] = (self.controls[1] - self.states[3][0])/self.dT
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
-        
-        
+        self.update_robot()
+
         

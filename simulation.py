@@ -34,19 +34,19 @@ if __name__ == '__main__':
     
     ###################### Initialize controls and states ###################### 
     
-#    states = np.array([[-8.0],
-#                       [-8.0],
-#                      [0*np.pi],[0]])
+    states = np.array([[-8.0],
+                       [-8.0],
+                      [0*np.pi],[0]])
                       
 #    states = np.array([[-8.0],
 #                       [-8.0],
 #                      [0*np.pi]])
                       
-    states = np.array([[-8.0],
-                       [-8.0],
-                      [np.pi*0],
-                      [0.0],
-                      [0.0]])
+#    states = np.array([[-8.0],
+#                       [-8.0],
+#                      [np.pi*0],
+#                      [0.0],
+#                      [0.0]])
     
     controls = np.array([0.0, 0.0])
     goal = np.array([10.0, 8.0, 0.0])
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     
     
     ################ Initialize model and control ################# 
-    robot = extended_bicycle("RK2", states, controls, path, dT)
+    robot = diff_drive("RK2", states, controls, path, dT)
     control = controllers(robot.gains)    
     
     
@@ -72,7 +72,9 @@ if __name__ == '__main__':
     while utils.euclidean_distance(goal, robot.states) > 0.1:
         
 
-        robot.controls = control.lqr_vel_steer_control(robot)
+        robot.controls = control.pose_control(robot)
+#        robot.controls = control.lqr_vel_steer_control(robot)
+        
         robot.run()      
         
         states_history = np.hstack((states_history, robot.states))
@@ -80,6 +82,6 @@ if __name__ == '__main__':
         time += dT
 
         if play_animation:
-            anime.animate(states_history, robot.goal, path, maps, robot.controls)         
+            anime.animate(states_history, robot, path, maps)         
     
     print("Simulation Finished")
