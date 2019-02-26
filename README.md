@@ -1,6 +1,6 @@
 # Roboxi (Robotics Toolbox) Project
 This Robotics Toolbox offers an easy to plug robotics algorithms into a simulation environment. The main idea create a modular simulation environment for robotics systems, in which several algorithms can be simple used.
-We plan to cover the main areas in robotics such as perception, localization, mapping and motion planning. Any feedback is welcome =D!
+We plan to cover the main areas in robotics such as perception, localization, mapping and motion planning. Any feedback is welcome =D! Notice this is a personal project and the main objective is to improve my robotics knowledge and programming skills =D
 
 ## Models
 The following models are currently available for the simulation:
@@ -60,10 +60,12 @@ Additional ideas for the future, when all basic part are implemented
 * Prediction of dynamical obstacles
 * Behaviour planning
 * Reiforcement Learning
+* GUI
 * ...
 
 ### Next todos
 * kalman filter
+* sensors?
 * graph slam
 * round obstacles
 * change everything to numpy!

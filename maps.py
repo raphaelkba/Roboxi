@@ -72,27 +72,7 @@ class maps():
     def plot_map(self, axis):
         animation.plot_map(np.asarray(self.x)*np.asarray(self.resolution), np.asarray(self.y)*np.asarray(self.resolution), axis)
         
-        
-        
-if __name__ == '__main__':
-    Astar = a_star()
-    resolution = 0.1 # map resolution
-    map_limits = [-20, 20, -20, 20] # [min_x, max_x, min_y, max_y]
-    obstacles = ([4, 6, 5],
-                 [-2, 0, 2])  
-#    obstacles = []
-    maps = maps(resolution, map_limits, obstacles, 2.25) 
-    # get grid map    
-    grid = maps.make_grid()   
-    fig, axs = plt.subplots()
-    maps.plot_map(axs)
-    init = [int((-8--10)/resolution), int((-8--20)/resolution)]
-    goal = [int((9--10)/resolution), int((15--20)/resolution)]
-#    Astar.astar_search(grid,init,goal)
-    start = [0,0]
-    goal = [10,6]
-    rrt = RRT(start, goal, obstacles, map_limits, 0.5, 10, 10000)
-    rrt.initialize_RRT()
+    
     
     
     

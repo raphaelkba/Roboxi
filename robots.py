@@ -1,5 +1,5 @@
 """
-Robots Class
+Roboxi - Robot models
 Nonlinear models and jacobian for:
     - Simple Car/Bicycle
     - Differential Drive
@@ -37,6 +37,7 @@ class robots():
         self.y = states[1][0]
         self.theta = states[2][0]
         self.steering_angle = 0
+        self.control_noise = np.diag([1.0, np.deg2rad(30.0)])**2
         
             
     def model(self, states, u):
@@ -48,9 +49,14 @@ class robots():
     def system_constraints(self, states, controls):
         pass
 
-    def run(self):
+    def run(self, *args):
         pass
-       
+    
+    def add_control_noise(self):
+        noise_cov = np.diag([1.0, np.deg2rad(30.0)])**2
+        self.controls[0] +=  np.random.randn()*noise_cov[0,0]
+        self.controls[1] +=  np.random.randn()*noise_cov[1,1]    
+    
     def update_robot(self):
         self.x = self.states[0][0]
         self.y = self.states[1][0]
@@ -130,7 +136,7 @@ class simple_bicycle(robots):
         self.theta = self.states[2][0]
         self.steering_angle = self.controls[1]        
         
-    def run(self):
+    def run(self, *args):
         """ simulation pipeline for running the robot one timestep """
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
@@ -216,7 +222,7 @@ class diff_drive(robots):
         return states, controls
 
         
-    def run(self):
+    def run(self, *args):
         """ simulation pipeline for running the robot one timestep """
         self.controls[1] = (self.controls[1] - self.states[3][0])/self.dT
         self.runge_kutta_solver()
@@ -243,8 +249,9 @@ class extended_bicycle(robots):
         self.error_old = 0
         self.previous_error = 0
         self.previous_angle_error = 0
-        self.Q = np.eye(5)
-        self.R = np.eye(2)
+        # lqr weigths        
+        self.Q = np.eye(5) # put somewhere else
+        self.R = np.eye(2) # put somewhere else
         super().__init__(robot, states, controls, path, dT)
         
     def model(self, states, u):
@@ -321,20 +328,14 @@ class extended_bicycle(robots):
     def error(self):
         angle_to_point = (utils.angle_between_points(self.states, self.goal) - self.states[2][0] + math.pi)%(2.0*math.pi) - math.pi
         beta = (self.goal[2] - self.states[2][0] - angle_to_point + math.pi) % (2.0 * math.pi) - math.pi
-        # derivative term for angle control         
-        error_diff = angle_to_point - self.error_old
-        self.error_old = angle_to_point        
-        distance =- utils.euclidean_distance(self.states, self.goal)
-        
+           
         error = [[0],[0],[0],[0],[0]]
         error[0] = self.states[0][0] - self.goal[0]
         error[1] = self.states[1][0] - self.goal[1]
-        error[2] = - angle_to_point + 0.1*beta
+        error[2] = - angle_to_point + 0.5*beta
         error[3] = self.states[3][0] - 0.0
-        error[4] = - angle_to_point + 0.1*beta
+        error[4] = - angle_to_point + 0.5*beta
         
-        self.previous_error = distance
-        self.previous_angle_error = angle_to_point
         return error
        
      
@@ -352,11 +353,15 @@ class extended_bicycle(robots):
         self.y = self.states[1][0]
         self.theta = self.states[2][0]
         self.steering_angle = self.states[4][0]  
-     
-    def run(self):
+    
+        
+    
+    def run(self, noise):
         """ simulation pipeline for running the robot one timestep """
         self.controls[0] = (self.controls[0] - self.states[3][0])/self.dT
         self.controls[1] = (self.controls[1] - self.states[4][0])/self.dT
+        if noise:
+            self.add_control_noise()
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
         self.update_robot()
@@ -412,7 +417,7 @@ class front_wheel_drive(robots):
          
   
         
-    def run(self):
+    def run(self, *args):
         """ simulation pipeline for running the robot one timestep """
         self.controls[1] = (self.controls[1] - self.states[3][0])/self.dT
         self.runge_kutta_solver()

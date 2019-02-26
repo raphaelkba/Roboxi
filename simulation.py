@@ -1,5 +1,5 @@
 """
-Robotic Simulation 
+Roboxi - Simulation 
 
 Author: Raphael Kusumoto Barbosa de Almeida
 E-Mail : raphael_kba@hotmail.com
@@ -34,19 +34,19 @@ if __name__ == '__main__':
     
     ###################### Initialize controls and states ###################### 
     
-    states = np.array([[-8.0],
-                       [-8.0],
-                      [0*np.pi],[0]])
+#    states = np.array([[-8.0],
+#                       [-8.0],
+#                      [0*np.pi],[0]])
                       
 #    states = np.array([[-8.0],
 #                       [-8.0],
 #                      [0*np.pi]])
                       
-#    states = np.array([[-8.0],
-#                       [-8.0],
-#                      [np.pi*0],
-#                      [0.0],
-#                      [0.0]])
+    states = np.array([[-8.0],
+                       [-8.0],
+                      [np.pi*0],
+                      [0.0],
+                      [0.0]])
     
     controls = np.array([0.0, 0.0])
     goal = np.array([10.0, 8.0, 0.0])
@@ -56,15 +56,17 @@ if __name__ == '__main__':
     controls_history = controls
     
     ###################### Initialize path planning ###################### 
-#    planner = a_star(resolution, map_limits, states, goal)    
-#    path = planner.plan(grid)
+    planner = a_star(resolution, map_limits, states, goal)    
+    path = planner.plan(grid)
     
-    rrt = RRT(states, goal, obstacles, map_limits, 0.2, 10000)
-    path = rrt.plan()
+#    rrt = RRT(states, goal, obstacles, map_limits, 0.2, 10000)
+#    path = rrt.plan()
     
     
     ################ Initialize model and control ################# 
-    robot = diff_drive("RK2", states, controls, path, dT)
+    robot_ground_truth = extended_bicycle("RK2", states, controls, path, dT)
+    robot = extended_bicycle("RK2", states, controls, path, dT)
+        
     control = controllers(robot.gains)    
     
     
@@ -72,16 +74,21 @@ if __name__ == '__main__':
     while utils.euclidean_distance(goal, robot.states) > 0.1:
         
 
-        robot.controls = control.pose_control(robot)
-#        robot.controls = control.lqr_vel_steer_control(robot)
-        
-        robot.run()      
+#        robot.controls = control.pose_control(robot)
+        robot.controls = control.lqr_vel_steer_control(robot)
+        robot_ground_truth.controls = control.lqr_vel_steer_control(robot_ground_truth)
+        add_noise = False
+        robot_ground_truth.run(add_noise) # ground truth
+        add_noise = True
+        robot.run(add_noise) # noisy data
+#        robot.run() # filtered
         
         states_history = np.hstack((states_history, robot.states))
+        states_history_ground_truth = np.hstack((states_history, robot_ground_truth.states))
         controls_history = np.hstack((controls_history, robot.controls))
         time += dT
 
         if play_animation:
-            anime.animate(states_history, robot, path, maps)         
+            anime.animate(states_history_ground_truth, robot, path, maps)         
     
     print("Simulation Finished")

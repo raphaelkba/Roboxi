@@ -1,3 +1,10 @@
+"""
+Roboxi - Utils
+
+Author: Raphael Kusumoto Barbosa de Almeida
+E-Mail : raphael_kba@hotmail.com
+"""
+
 import numpy as np
 import math
 
