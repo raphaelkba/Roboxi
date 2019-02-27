@@ -51,6 +51,9 @@ class robots():
     def run(self, *args):
         pass
     
+    def jacobi(self):
+        pass
+    
     def add_control_noise(self):
         noise_cov = np.diag([1.0, np.deg2rad(40.0)])**2
         self.controls[0] +=  np.random.randn()*noise_cov[0,0]
@@ -62,6 +65,7 @@ class robots():
         self.theta = self.states[2,0]
         self.steering_angle = self.states[3,0]   
         
+
     def euler_solver(self):
         """
         Euler method for solving first order degree differential equations
@@ -94,7 +98,7 @@ class simple_bicycle(robots):
         self.min_vel = -50.0
         self.max_steering_angle = math.pi/3
         self.min_steering_angle = -math.pi/3
-        self.gains = np.array([0.5, 0.0, 1.0, -0.5])
+        self.gains = np.array([1.0, 1.0, 5.0, -0.5])
         self.lookahead_idx = 5
         super().__init__(robot, states, controls, path, dT)
         
@@ -122,7 +126,32 @@ class simple_bicycle(robots):
                            [utils.truncate_angle(v*np.tan(df)/self.L)]])
 
         return system
+       
+    def jacobi(self):
         
+        theta = self.states[2,0]
+        vel = self.controls[0]
+        
+        A = np.array([[1.0, 0.0, -self.dT*vel*np.sin(theta)],
+                      [0.0, 1.0, self.dT*vel*np.cos(theta)],
+                      [0.0, 0.0, 1.0]])        
+        
+        B = np.array([[self.dT*np.cos(theta), 0.0],
+                      [self.dT*np.sin(theta), 0.0],
+                      [0.0, (self.dT)/self.L]])
+      
+        return A, B
+       
+    def error(self):
+        angle_to_point = (utils.angle_between_points(self.states, self.goal) - self.states[2][0] + math.pi)%(2*math.pi) - math.pi
+        beta = (self.goal[2] - self.states[2,0] - angle_to_point + math.pi) % (2.0 * math.pi) - math.pi
+        error = np.array([0.0, 0.0, 0.0])
+        error[0] = self.states[0,0] - self.goal[0]
+        error[1] = self.states[1,0] - self.goal[1]
+        error[2] = -angle_to_point + 0.5*beta
+
+        return error        
+       
     def system_constraints(self, states, controls):
         states[2,0] = utils.truncate_angle(states[2,0]) # orientation from -pi to pi 
         controls[0] = utils.constrain_value(controls[0], self.min_vel, self.max_vel) # constrain velocity
@@ -182,28 +211,19 @@ class diff_drive(robots):
        
         return system
        
-    def jacobi(self, vel):
+    def jacobi(self):
 
         theta = self.states[2,0]
+        vel = self.controls[0]
+        A = np.array([[1.0, 0.0, -self.dT*self.r*vel*np.sin(theta), 0.0],
+                      [0.0, 1.0, self.dT*self.r*vel*np.cos(theta), 0.0],
+                      [0.0, 0.0, 1.0, 0.0],
+                      [0.0, 0.0, 0.0, 1.0]])        
         
-        A = np.zeros((4, 4))
-        A[0, 0] = 1.0
-        A[0, 1] = 0.0
-        A[0, 2] = -self.dT*self.r*vel*np.sin(theta)
-        A[1, 0] = 0.0
-        A[1, 1] = 1.0
-        A[1, 2] = self.dT*self.r*vel*np.cos(theta)
-        A[2, 0] = 0.0
-        A[2, 1] = 0.0
-        A[2, 2] = 1.0
-        A[3, 3] = 1.0
-
-        
-        B = np.zeros((4, 2))
-        B[0, 0] = self.dT*self.r*np.cos(theta)
-        B[1, 0] = self.dT*self.r*np.sin(theta)
-        B[2, 1] = (self.dT*self.r)/self.L
-        B[3, 1] = 1.0
+        B = np.array([[self.dT*self.r*np.cos(theta), 0.0],
+                      [self.dT*self.r*np.sin(theta), 0.0],
+                      [0.0, (self.dT*self.r)/self.L],
+                      [0.0, 1.0]])
       
         return A, B
         
@@ -239,14 +259,14 @@ class extended_bicycle(robots):
         self.L = 4.5
         self.max_vel = 50.0
         self.min_vel = -50.0
-        self.max_acc = 5.0
-        self.min_acc = -5.0        
-        self.max_steering_vel = 1.0
-        self.min_steering_vel = -1.0
+        self.max_acc = 10.0
+        self.min_acc = -10.0        
+        self.max_steering_vel = 10.0
+        self.min_steering_vel = -10.0
         self.max_steering_angle = math.pi/3
         self.min_steering_angle = -math.pi/3
-        self.gains = np.array([0.2, 1.0, 10.0, -0.5])
-        self.lookahead_idx = 15
+        self.gains = np.array([0.1, 10.0, 2.0, -0.5])
+        self.lookahead_idx = 5
         self.error_old = 0
         self.previous_error = 0
         self.previous_angle_error = 0
@@ -273,94 +293,75 @@ class extended_bicycle(robots):
         x = states[0,0]
         y = states[1,0]
         theta = states[2,0]
-        v = states[3,0]
-        v = utils.constrain_value(v, self.min_vel, self.max_vel)
-        phi = states[4,0]
+        vel = states[3,0]
+        vel = utils.constrain_value(vel, self.min_vel, self.max_vel)
+        phi = utils.constrain_value(states[4,0], self.min_steering_angle, self.max_steering_angle)
 
-        
-        system = np.array([[v*np.cos(theta)],
-                           [v*np.sin(theta)],
-                           [utils.truncate_angle(v*np.tan(phi)/self.L)],
+        system = np.array([[vel*np.cos(theta)],
+                           [vel*np.sin(theta)],
+                           [utils.truncate_angle(vel*np.tan(phi)/self.L)],
                            [a],
                            [w]])
           
-        
         return system   
        
        
-    def jacobi(self, vel):
+    def jacobi(self):
         theta = self.states[2,0]
-        v = self.states[3,0]        
+        vel = self.states[3,0]        
         phi = self.states[4,0]
         
-        A = np.zeros((5, 5))
-        A[0, 0] = 1.0
-        A[0, 1] = 0.0
-        A[0, 2] = -self.dT*v*np.sin(theta)
-        A[0, 3] = self.dT*np.cos(theta)
-        A[0, 4] = 0
-        A[1, 0] = 0.0
-        A[1, 1] = 1.0
-        A[1, 2] = self.dT*v*np.cos(theta)
-        A[1, 3] = self.dT*np.sin(theta)
-        A[1, 4] = 0.0
-        A[2, 0] = 0.0
-        A[2, 1] = 0.0
-        A[2, 2] = 1.0
-        A[2, 3] = self.dT*np.tan(phi)/self.L
-        A[2, 4] = self.dT*v/(np.cos(phi)*np.cos(phi)*self.L)
-        A[3, 0] = 0.0        
-        A[3, 1] = 0.0    
-        A[3, 2] = 0.0
-        A[3, 3] = 1.0        
-        A[3, 4] = 0.0
-        A[4, 0] = 0.0       
-        A[4, 1] = 0.0        
-        A[4, 2] = 0.0        
-        A[4, 3] = 0.0        
-        A[4, 4] = 1.0   
+        A = np.array([[1.0, 0.0, -self.dT*vel*np.sin(theta), self.dT*np.cos(theta), 0.0],
+                      [0.0, 1.0, self.dT*vel*np.cos(theta), self.dT*np.sin(theta), 0.0],
+                      [0.0, 0.0, 1.0, self.dT*np.tan(phi)/self.L, self.dT*vel/(np.cos(phi)*np.cos(phi)*self.L)],
+                      [0.0, 0.0, 0.0, 1.0, 0.0],
+                      [0.0, 0.0, 0.0, 0.0, 1.0]])        
         
-        B = np.zeros((5, 2))
-        B[3, 0] = 1.0
-        B[4, 1] = 1.0
-        
+        B = np.array([[0.0, 0.0],
+                      [0.0, 0.0],
+                      [0.0, 0.0],
+                      [1.0, 0.0],
+                      [0.0, 1.0]])
+                      
+
         return A, B
         
     def error(self):
         angle_to_point = (utils.angle_between_points(self.states, self.goal) - self.states[2,0] + math.pi)%(2.0*math.pi) - math.pi
         beta = (self.goal[2] - self.states[2,0] - angle_to_point + math.pi) % (2.0 * math.pi) - math.pi
            
-        error = [[0],[0],[0],[0],[0]]
+        error =  np.array([0.0, 0.0, 0.0, 0.0,0.0])
         error[0] = self.states[0,0] - self.goal[0]
         error[1] = self.states[1,0] - self.goal[1]
-        error[2] = - angle_to_point + 0.5*beta
+        error[2] = - angle_to_point # + 0.5*beta
         error[3] = self.states[3,0] - 0.0
-        error[4] = - angle_to_point + 0.5*beta
-        
+#        error[4] = - angle_to_point # + 0.5*beta
+#        error[4] = self.states[4,0] - 0.0
         return error
        
      
     def system_constraints(self, states, controls):
         states[2,0] = utils.truncate_angle(states[2,0]) # orientation from -pi to pi 
-        states[3,0] = utils.constrain_value(states[3,0], self.min_vel, self.max_vel) # orientation from -pi to pi 
+        states[3,0] = utils.constrain_value(states[3,0], self.min_vel, self.max_vel) 
         states[4,0] = utils.constrain_value(states[4,0], self.min_steering_angle, self.max_steering_angle) # orientation from -pi to pi 
         
         controls[0] = utils.constrain_value(controls[0], self.min_acc, self.max_acc) # constrain acc
         controls[1] = utils.constrain_value(controls[1], self.min_steering_vel, self.max_steering_vel) # constrain acc
+        
         return states, controls
    
     def update_robot(self):
         self.x = self.states[0,0]
         self.y = self.states[1,0]
         self.theta = self.states[2,0]
-        self.steering_angle = self.states[4,0]  
+        self.steering_angle = self.states[4,0]
     
         
     
     def run(self, noise):
         """ simulation pipeline for running the robot one timestep """
-        self.controls[0] = (self.controls[0] - self.states[3,0])/self.dT
-#        self.controls[1] = (self.controls[1] - self.states[4][0])/self.dT
+#        self.controls[0] = (self.controls[0] - self.states[3,0])#/self.dT
+        self.controls[1] = (self.controls[1] - self.states[4,0])/self.dT
         if noise:
             self.add_control_noise()
         self.runge_kutta_solver()
@@ -376,9 +377,11 @@ class front_wheel_drive(robots):
         self.L = 4.5
         self.min_vel = -50.0
         self.max_vel = 50.0
-        self.min_steering_vel = -1.0
-        self.max_steering_vel = 1.0
-        self.gains = np.array([0.3, 0.0, 1.0, -0.5])
+        self.min_steering_vel = -10.0
+        self.max_steering_vel = 10.0
+        self.max_steering_angle = math.pi/3
+        self.min_steering_angle = -math.pi/3
+        self.gains = np.array([1.0, 1.0, 5.0, -0.5])
         self.lookahead_idx = 5
         super().__init__(robot, states, controls, path, dT)
         
@@ -390,11 +393,11 @@ class front_wheel_drive(robots):
                u - controls (speed, steering_angle)
         Output: system - system states
         """
-        v = u[0]
+        vel = u[0]
         w = u[1]
         
         # set contraints
-        v = utils.constrain_value(v, self.min_vel, self.max_vel)
+        vel = utils.constrain_value(vel, self.min_vel, self.max_vel)
         w = utils.constrain_value(w, self.min_steering_vel, self.max_steering_vel)        
             
         x = states[0,0]
@@ -402,16 +405,43 @@ class front_wheel_drive(robots):
         theta = states[2,0]
         phi = states[3,0]
         
-        system = np.array([[v*np.cos(theta)*np.cos(phi)],
-                           [v*np.sin(theta)*np.cos(phi)],
-                           [v*np.sin(phi)/self.L],
+        system = np.array([[vel*np.cos(theta)*np.cos(phi)],
+                           [vel*np.sin(theta)*np.cos(phi)],
+                           [vel*np.sin(phi)/self.L],
                            [w]])
     
         return system   
 
+    def jacobi(self):
+        theta = self.states[2,0]
+        phi = self.states[3,0]
+#        vel = utils.euclidean_distance(self.states, self.goal)
+        vel = self.controls[0]
+        A = np.array([[1.0, 0.0, -self.dT*vel*np.sin(theta)*np.cos(phi), -self.dT*vel*np.cos(theta)*np.sin(phi)],
+                      [0.0, 1.0, self.dT*vel*np.cos(theta)*np.cos(phi), -self.dT*np.sin(theta)*np.sin(phi)],
+                      [0.0, 0.0, 1.0, self.dT*vel*np.cos(phi)/self.L],
+                      [0.0, 0.0, self.dT, 1.0]])        
         
+        B = np.array([[self.dT*np.cos(theta)*np.cos(phi), 0.0],
+                      [self.dT*np.sin(theta)*np.cos(phi), 0.0],
+                      [self.dT*np.sin(phi)/self.L, 0.0],
+                      [0.0, 1.0]])
+
+        return A, B  
+      
+    def error(self):
+        angle_to_point = (utils.angle_between_points(self.states, self.goal) - self.states[2][0] + math.pi)%(2*math.pi) - math.pi
+        beta = (self.goal[2] - self.states[2,0] - angle_to_point + math.pi) % (2.0 * math.pi) - math.pi
+        error = np.array([0.0, 0.0, 0.0, 0.0])
+        error[0] = self.states[0,0] - self.goal[0]
+        error[1] = self.states[1,0] - self.goal[1]
+        error[2] = - angle_to_point
+        error[3] = self.states[3,0]
+        return error              
+      
     def system_constraints(self, states, controls):
         states[2,0] = utils.truncate_angle(states[2,0]) # orientation from -pi to pi 
+        states[3,0] = utils.constrain_value(states[3,0], self.min_steering_angle, self.max_steering_angle) # orientation from -pi to pi 
         controls[0] = utils.constrain_value(controls[0], self.min_vel, self.max_vel) # constrain velocity
         controls[1] = utils.constrain_value(controls[1], self.min_steering_vel, self.max_steering_vel) # constrain steering angle
         return states, controls
@@ -420,7 +450,8 @@ class front_wheel_drive(robots):
         
     def run(self, *args):
         """ simulation pipeline for running the robot one timestep """
-        self.controls[1] = (self.controls[1] - self.states[3,0])/self.dT
+        
+#        self.controls[1] = (self.controls[1] - self.states[3,0])/self.dT # works for pose control, but not for lqr (pose calculates the angle, lqr the steering vel)
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
         self.update_robot()

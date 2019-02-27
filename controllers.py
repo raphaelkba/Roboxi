@@ -50,7 +50,7 @@ class controllers():
 
         ######## Linearization ########
         vel = utils.euclidean_distance(robot.states, robot.goal)
-        A, B = robot.jacobi(vel)
+        A, B = robot.jacobi()
 
         ######## DARE ########
         X = self.solve_DARE(A, B)
@@ -67,15 +67,14 @@ class controllers():
         return np.array([vel, delta])  
         
     def lqr_vel_steer_control(self, robot):
-        robot.lookahead_idx = 10
+        robot.lookahead_idx = 25
         self.Q = np.eye(5)
         self.R = np.eye(2)
         robot.goal = self.look_ahead(robot)
         
 
         ######## Linearization ########
-        vel = utils.euclidean_distance(robot.states, robot.goal)
-        A, B = robot.jacobi(vel)
+        A, B = robot.jacobi()
 
         ######## DARE ########
         X = self.solve_DARE(A, B)

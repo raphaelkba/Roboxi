@@ -26,7 +26,7 @@ class Kalman_filter():
     def predict(self, filter_robot):
         add_noise = True
         filter_robot.run(add_noise)
-        A, B = filter_robot.jacobi(0.0)
+        A, B = filter_robot.jacobi()
         p_predicted = A@self.P@A.T + self.Q
         return p_predicted
 
