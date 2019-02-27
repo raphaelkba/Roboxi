@@ -28,13 +28,14 @@ class animation():
         
     def animate(self, states_history, robot, path, maps):
         self.ax.cla()
-#        self.plot_car(robot.x, robot.y, robot.theta, robot.steering_angle, 4.5)
-        self.plot_diff_driver(robot.x, robot.y, robot.theta, robot.steering_angle, 1.0, 0.2)
+        self.plot_car(robot.x, robot.y, robot.theta, robot.steering_angle, 4.5)
+#        self.plot_diff_driver(robot.x, robot.y, robot.theta, robot.steering_angle, 1.0, 0.2)
         self.ax.plot(states_history[0][:], states_history[1][:], ".b")
+        self.ax.plot(states_history[0][-1], states_history[1][-1], "*k")
+        self.ax.plot(robot.x, robot.y, "*m")
         self.ax.plot(path[0], path[1], '.g')
         
 #        self.plot_pose(states_history[:,-1], 'b')
-        self.plot_pose(robot.goal, 'r')
         
         maps.plot_map(self.ax)
 

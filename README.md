@@ -64,8 +64,10 @@ Additional ideas for the future, when all basic part are implemented
 * ...
 
 ### Next todos
+* jacobian for all models
 * kalman filter
-* sensors?
+* spline
+* sensor class?
 * graph slam
 * round obstacles
 * change everything to numpy!

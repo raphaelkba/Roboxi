@@ -7,6 +7,7 @@ E-Mail : raphael_kba@hotmail.com
 
 import matplotlib.pyplot as plt
 import numpy as np
+import copy
 
 from controllers import controllers
 from utils import utils
@@ -15,6 +16,7 @@ from maps import maps
 from a_star import a_star
 from robots import diff_drive, extended_bicycle, front_wheel_drive, simple_bicycle
 from RRT import RRT
+from kalman_filter import Kalman_filter
 
 if __name__ == '__main__':
     # Initialize simulation parameters
@@ -34,25 +36,26 @@ if __name__ == '__main__':
     
     ###################### Initialize controls and states ###################### 
     
-#    states = np.array([[-8.0],
-#                       [-8.0],
-#                      [0*np.pi],[0]])
+    states = np.array([[-8.0],
+                       [-8.0],
+                      [0*np.pi],[0]])
                       
 #    states = np.array([[-8.0],
 #                       [-8.0],
 #                      [0*np.pi]])
                       
-    states = np.array([[-8.0],
-                       [-8.0],
-                      [np.pi*0],
-                      [0.0],
-                      [0.0]])
+#    states = np.array([[-8.0],
+#                       [-8.0],
+#                      [np.pi*0],
+#                      [0.0],
+#                      [0.0]])
     
     controls = np.array([0.0, 0.0])
     goal = np.array([10.0, 8.0, 0.0])
         
     
     states_history = states
+    states_history_ground_truth = states
     controls_history = controls
     
     ###################### Initialize path planning ###################### 
@@ -64,31 +67,31 @@ if __name__ == '__main__':
     
     
     ################ Initialize model and control ################# 
-    robot_ground_truth = extended_bicycle("RK2", states, controls, path, dT)
-    robot = extended_bicycle("RK2", states, controls, path, dT)
+    robot_ground_truth = diff_drive("RK2", states, controls, path, dT)
+    robot = diff_drive("RK3", states, controls, path, dT)
         
     control = controllers(robot.gains)    
     
+    ekf = Kalman_filter(states.shape[0])
     
     print("Start Simulation")
     while utils.euclidean_distance(goal, robot.states) > 0.1:
         
-
-#        robot.controls = control.pose_control(robot)
-        robot.controls = control.lqr_vel_steer_control(robot)
-        robot_ground_truth.controls = control.lqr_vel_steer_control(robot_ground_truth)
+        robot.controls = control.lqr_steer_control(robot)
+        robot_ground_truth.controls = copy.deepcopy(robot.controls)
+        
         add_noise = False
         robot_ground_truth.run(add_noise) # ground truth
-        add_noise = True
-        robot.run(add_noise) # noisy data
-#        robot.run() # filtered
-        
+#        add_noise = True
+#        robot.run()
+        robot = ekf.run_filter(robot, robot_ground_truth.states) 
+      
         states_history = np.hstack((states_history, robot.states))
-        states_history_ground_truth = np.hstack((states_history, robot_ground_truth.states))
+        states_history_ground_truth = np.hstack((states_history_ground_truth, robot_ground_truth.states))
         controls_history = np.hstack((controls_history, robot.controls))
         time += dT
 
         if play_animation:
-            anime.animate(states_history_ground_truth, robot, path, maps)         
+            anime.animate(states_history, robot_ground_truth, path , maps)         
     
     print("Simulation Finished")
