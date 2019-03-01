@@ -4,9 +4,9 @@ We plan to cover the main areas in robotics such as perception, localization, ma
 
 ## Models
 The following models are currently available for the simulation:
-### Simple car/bicycle model
+* Simple car/bicycle model
+    * Path planning with A* and inflated obstacles, controled using a pose controller
 ![Simple Car](gifs/simple_bike_pose.gif)
-<img src="gifs/simple_bike_pose.gif" width="300" height="300" />
 * Differential Drive
 * Extended Bicycle Kinematic model
 * Front wheel drive
