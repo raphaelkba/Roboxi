@@ -5,6 +5,8 @@ Author: Raphael Kusumoto Barbosa de Almeida
 E-Mail : raphael_kba@hotmail.com
 """
 
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 import numpy as np
 import math
 
@@ -42,4 +44,6 @@ class utils():
                  ** 2 for node in nodes]
         return nodes[distances.index(min(distances))], distances.index(min(distances))
         
+    
+
 

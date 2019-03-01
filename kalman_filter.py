@@ -1,5 +1,5 @@
 """
-Roboxi - Kalman Filter
+Roboxi - Extended Kalman Filter
 
 Author: Raphael Kusumoto Barbosa de Almeida
 E-Mail : raphael_kba@hotmail.com

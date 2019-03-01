@@ -31,6 +31,7 @@ class RRT(Planner):
         self.nodes.append([self.start[0], self.start[1], -1])
         self.gains = np.array([0.1, 0.0, 1.0, -0.5])
         self.control = controllers(self.gains)        
+        self.itr = 0
         super().__init__(self.start, self.goal, map_limits)
 
         
@@ -58,7 +59,8 @@ class RRT(Planner):
                 print("RRT found a goal")
                 break
             itr += 1
-        self.animation()
+        if self.planner_animation:
+            self.animation()
         
         path = self.find_path()
         path_x = np.array(path[:,0])
@@ -106,5 +108,15 @@ class RRT(Planner):
             if node[2] != -1:
                 plt.plot([node[0], self.nodes[node[2]][0]], [node[1], self.nodes[node[2]][1]], "-k")
         
-        self.ax.axis('equal')
+#        self.ax.axis('equal')
+
+        self.ax.set_xlim(-20, 20)
+        self.ax.set_ylim(-20, 20)
+       
+        plt.xlabel('x [m]')
+        plt.ylabel('y [m]')
+        plt.title('RRT Planner')
+#        if self.itr%5 == 0:
+        plt.savefig("images/"+ str(self.itr) +".png")
+        self.itr += 1
         plt.pause(0.001)

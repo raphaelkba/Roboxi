@@ -114,16 +114,16 @@ class simple_bicycle(robots):
         df = math.atan(u[1]*self.L/v) # transformation of steering angle to robots heading
         
         # set contraints
-        v = utils.constrain_value(v, self.min_vel, self.max_vel)
+        vel = utils.constrain_value(v, self.min_vel, self.max_vel)
         df = utils.constrain_value(df, self.min_steering_angle, self.max_steering_angle)
         # states
         x = states[0,0]
         y = states[1,0]
         theta = states[2,0]
         # update
-        system = np.array([[v*np.cos(theta)],
-                           [v*np.sin(theta)],
-                           [utils.truncate_angle(v*np.tan(df)/self.L)]])
+        system = np.array([[vel*np.cos(theta)],
+                           [vel*np.sin(theta)],
+                           [utils.truncate_angle(vel*np.tan(df)/self.L)]])
 
         return system
        
@@ -131,6 +131,7 @@ class simple_bicycle(robots):
         
         theta = self.states[2,0]
         vel = self.controls[0]
+        df = self.controls[1]
         
         A = np.array([[1.0, 0.0, -self.dT*vel*np.sin(theta)],
                       [0.0, 1.0, self.dT*vel*np.cos(theta)],
@@ -138,7 +139,7 @@ class simple_bicycle(robots):
         
         B = np.array([[self.dT*np.cos(theta), 0.0],
                       [self.dT*np.sin(theta), 0.0],
-                      [0.0, (self.dT)/self.L]])
+                      [0.0, vel/(np.cos(df)*np.cos(df)*self.L)]])
       
         return A, B
        
@@ -164,9 +165,11 @@ class simple_bicycle(robots):
         self.theta = self.states[2,0]
         self.steering_angle = self.controls[1]        
         
-    def run(self, *args):
+    def run(self, noise):
         """ simulation pipeline for running the robot one timestep """
         self.runge_kutta_solver()
+        if noise:
+            self.add_control_noise()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
         self.update_robot()
         
@@ -176,8 +179,8 @@ class diff_drive(robots):
 
 
     def __init__(self, robot, states, controls, path, dT):
-        self.r = 0.1
-        self.L = 0.5
+        self.r = 0.2
+        self.L = 1.0
         self.max_vel = 2.0
         self.min_vel = -2.0
         self.gains = np.array([2.5, 0.0, 1.0, -0.5])
@@ -239,13 +242,16 @@ class diff_drive(robots):
         
     def system_constraints(self, states, controls):
         states[2,0] = utils.truncate_angle(states[2,0]) # orientation from -pi to pi 
+
         controls[0] = utils.constrain_value(controls[0], self.min_vel, self.max_vel) # constrain velocity
         return states, controls
 
         
-    def run(self, *args):
+    def run(self, noise):
         """ simulation pipeline for running the robot one timestep """
         self.controls[1] = (self.controls[1] - self.states[3,0])/self.dT
+        if noise:
+            self.add_control_noise()
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
         self.update_robot()
@@ -448,10 +454,12 @@ class front_wheel_drive(robots):
          
   
         
-    def run(self, *args):
+    def run(self, noise):
         """ simulation pipeline for running the robot one timestep """
         
-#        self.controls[1] = (self.controls[1] - self.states[3,0])/self.dT # works for pose control, but not for lqr (pose calculates the angle, lqr the steering vel)
+        self.controls[1] = (self.controls[1] - self.states[3,0])/self.dT # works for pose control, but not for lqr (pose calculates the angle, lqr the steering vel)
+        if noise:
+            self.add_control_noise()        
         self.runge_kutta_solver()
         self.states, self.controls = self.system_constraints(self.states, self.controls)
         self.update_robot()

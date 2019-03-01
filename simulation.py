@@ -28,9 +28,11 @@ if __name__ == '__main__':
     ###################### Initialize map ###################### 
     resolution = 0.1 # map resolution
     map_limits = [-20, 20, -20, 20] # [min_x, max_x, min_y, max_y]
-    obstacles = ([4, 6, 3],
-                 [0, 0, 2])    
-    inflation = 2.25
+    obstacles = ([2, 8, 2],
+                 [-2, 3, 3],
+                 [9, -4, 4]) 
+#    obstacles = ()
+    inflation = 3.0
     maps = maps(resolution, map_limits, obstacles, inflation) 
     grid = maps.make_grid() # get grid map with inflated obstacles
     
@@ -45,7 +47,7 @@ if __name__ == '__main__':
 #                      [0*np.pi]])
                       
     states = np.array([[-8.0],
-                       [-8.0],
+                        [-8.0],
                       [np.pi*0],
                       [0.0],
                       [0.0]])
@@ -75,25 +77,24 @@ if __name__ == '__main__':
     ekf = Kalman_filter(states.shape[0])
     
     print("Start Simulation")
-    while utils.euclidean_distance(goal, robot.states) > 0.1:
+    while utils.euclidean_distance(goal, robot.states) > 0.3:
         
         robot.controls = control.lqr_vel_steer_control(robot)
         robot_ground_truth.controls = copy.deepcopy(robot.controls)
         
         add_noise = False
         robot_ground_truth.run(add_noise) # ground truth
-#        add_noise = True
-        robot.run(add_noise)
-#        robot = ekf.run_filter(robot, robot_ground_truth.states) 
-        print(robot.states)
-        print("controls")
-        print(robot.controls)
+#        add_noise = False
+#        robot.run(add_noise)
+        robot = ekf.run_filter(robot, robot_ground_truth.states) 
+
         states_history = np.hstack((states_history, robot.states))
         states_history_ground_truth = np.hstack((states_history_ground_truth, robot_ground_truth.states))
         controls_history = np.hstack((controls_history, robot.controls))
         time += dT
 #        plt.pause(0.25)
         if play_animation:
-            anime.animate(states_history, robot, path , maps)         
+            anime.animate(states_history, robot_ground_truth, path , maps)         
     
     print("Simulation Finished")
+

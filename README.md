@@ -5,6 +5,7 @@ We plan to cover the main areas in robotics such as perception, localization, ma
 ## Models
 The following models are currently available for the simulation:
 * Simple car/bicycle model
+
 * Differential Drive
 * Extended Bicycle Kinematic model
 * Front wheel drive
@@ -63,11 +64,15 @@ Additional ideas for the future, when all basic part are implemented
 * GUI
 * ...
 
+## Requirements
+
+* Python 3.6
+* numpy
+* matplotlib
+
 ### Next todos
-* jacobian for all models
-* kalman filter
 * spline
 * sensor class?
 * graph slam
 * round obstacles
-* change everything to numpy!
+* code cleaning/comments

@@ -26,6 +26,7 @@ class a_star(Planner):
         self.goal = [int((goal[0] - map_limits[0])/resolution), int((goal[1] - map_limits[2])/resolution)]
         super().__init__(self.init, self.goal, map_limits)
         self.planner_animation = False
+        self.itr = 1
         
     def plan(self, grid):
         # x,y, cost
@@ -78,7 +79,7 @@ class a_star(Planner):
                         if x2 >= 0 and x2 < len(grid) and y2 >=0 and y2 < len(grid[0]):
                             if closed[x2][y2] == 0 and grid[x2][y2] == 0:
                                 g2 = g + possible_movements[i][2] 
-                                f = g2 + calculate_heuristic([x2,y2],self.goal)
+                                f = g2 + calculate_heuristic([x2,y2], self.goal)
                                 open_list.append([f, g2, x2, y2])
                                 closed[x2][y2] = 1
                                 deltas[x2][y2] = i
@@ -112,7 +113,9 @@ class a_star(Planner):
             for i in reversed(range(len(path))):            
                 grid_plot[path[i][0]][path[i][1]] = 20+i
                 self.ax.matshow(np.rot90(np.array(grid_plot)))      
-                plt.pause(0.001)   
+                plt.savefig("images/"+ str(self.itr) +".png")
+                self.itr += 1
+                plt.pause(0.001) 
         path_x = path[:,0]*self.resolution + self.min_lim_x
         path_y = path[:,1]*self.resolution + self.min_lim_y 
         path = [path_x[::-1], path_y[::-1]]
@@ -127,6 +130,11 @@ class a_star(Planner):
         grid_plot[next_item[2]][next_item[3]] = 5
         grid_plot[self.goal[0]][self.goal[1]] = 10
         grid_plot[self.init[0]][self.init[1]] = 15
-        self.ax.matshow(np.rot90(np.array(grid_plot))) 
+        self.ax.matshow(np.rot90(np.array(grid_plot)))
+        plt.xlabel('x [m]')
+        plt.ylabel('y [m]')
+        plt.title('A* Planner')
+        plt.savefig("images/"+ str(self.itr) +".png")
+        self.itr += 1
         plt.pause(0.001)
         

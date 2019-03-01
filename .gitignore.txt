@@ -1,0 +1,5 @@
+*.pdf
+*.avi
+*.jpeg
+videos/
+images/

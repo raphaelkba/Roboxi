@@ -43,7 +43,7 @@ class controllers():
  
  
     def lqr_steer_control(self, robot):
-        self.Q = np.eye(4)
+        self.Q = np.eye(robot.states.shape[0])
         self.R = np.eye(2)
         robot.goal = self.look_ahead(robot)
         
