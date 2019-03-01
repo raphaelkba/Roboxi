@@ -5,7 +5,7 @@ We plan to cover the main areas in robotics such as perception, localization, ma
 ## Models
 The following models are currently available for the simulation:
 ### Simple car/bicycle model
-!(https://github.com/raphaelkba/Roboxi/tree/master/gifs/simple_bike_pose.gif)
+    ![Simple Bicycle](https://github.com/raphaelkba/Roboxi/blob/master/gifs/simple_bike_pose.gif)
 
 * Differential Drive
 * Extended Bicycle Kinematic model
