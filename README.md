@@ -2,11 +2,31 @@
 This Robotics Toolbox offers an easy to plug robotics algorithms into a simulation environment. The main idea create a modular simulation environment for robotics systems, in which several algorithms can be simple used.
 We plan to cover the main areas in robotics such as perception, localization, mapping and motion planning. Any feedback is welcome =D! Notice this is a personal project and the main objective is to improve my robotics knowledge and programming skills =D
 
+## Examples
+This section presents some examples of the algorithms and combinations implemented in the Roboxi. Altough there are some limitations as path planning post smoothing or lack of state of the art methods, the main idea is to show the flexibility of how the toolbox can be used.
+
+* A* planner example
+![A*](gifs/a_star.gif)
+* RRT planner example
+![A*](gifs/rrt.gif)
+* Path planning with A* and inflated obstacles, controled using a pose controller
+![Simple Car Pose](gifs/simple_bike_pose.gif)
+* Path planning with A* and inflated obstacles, controled using a LQR controller
+![Simple Car LQR](gifs/simple_bike_lqr.gif)
+* Differential Drive with A* planner, inflated obstacles and pose controller
+![Diff Drive Pose](gifs/diff_drive_pose.gif)
+* Differential Drive with RRT planner and LQR controller
+![Diff Drive LQR](gifs/diff_drive_lqr.gif)
+* Extended Bicycle Modelwith RRT planner and LQR controller
+![Extended Bicycle RRT](gifs/ext_bike_lqr_rrt.gif)
+* Extended Bicycle Model with A* planner, Extended Kalman Filter and LQR controller
+![Extended Bicycle EKF](gifs/ext_bike_lqr_ekf.gif)
+* Front Wheel Drive with A* planner, Extended Kalman Filter and pose controller
+![Front Wheel EKF](gifs/front_wheel_drive_ekf.gif)
+
 ## Models
 The following models are currently available for the simulation:
 * Simple car/bicycle model
-    * Path planning with A* and inflated obstacles, controled using a pose controller
-![Simple Car](gifs/simple_bike_pose.gif)
 * Differential Drive
 * Extended Bicycle Kinematic model
 * Front wheel drive
@@ -78,3 +98,4 @@ Additional ideas for the future, when all basic part are implemented
 * round obstacles
 * code cleaning/comments
 * RRT plot final path
+* RRT*
