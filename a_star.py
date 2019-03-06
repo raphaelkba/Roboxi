@@ -11,10 +11,6 @@ import matplotlib.pyplot as plt
 import copy
 from planner import Planner
 
-def calculate_heuristic(pos, goal):
-    w = 1.0  # weight of heuristic
-    d = w * math.sqrt((pos[0] - goal[0])**2 + (pos[1] - goal[1])**2)
-    return d      
 
 
 class a_star(Planner):
@@ -30,14 +26,14 @@ class a_star(Planner):
         
     def plan(self, grid):
         # x,y, cost
-        possible_movements =[[-1,  0, 1], # go up
-                            [-1,  -1, math.sqrt(2)], # up left 
-                            [ 0, -1, 1], # go left
-                            [ 1, -1, math.sqrt(2)], # down left
-                            [ 1,  0, 1], # go down
-                            [ 1,  1, math.sqrt(2)], # down right
-                            [ 0,  1, 1], # go right
-                            [ -1, 1, math.sqrt(2)]]# up right
+        possible_movements =[[-1,  0, self.resolution], # go up
+                            [-1,  -1, math.sqrt(self.resolution*self.resolution + self.resolution*self.resolution)], # up left 
+                            [ 0, -1, self.resolution], # go left
+                            [ 1, -1, math.sqrt(self.resolution*self.resolution + self.resolution*self.resolution)], # down left
+                            [ 1,  0, self.resolution], # go down
+                            [ 1,  1, math.sqrt(self.resolution*self.resolution + self.resolution*self.resolution)], # down right
+                            [ 0,  1, self.resolution], # go right
+                            [ -1, 1, math.sqrt(self.resolution*self.resolution + self.resolution*self.resolution)]]# up right
         
         closed = [[0 for col in range(len(grid[0]))] for row in range(len(grid))]
         deltas = [[0 for row in range(len(grid[0]))] for col in range(len(grid))]
@@ -79,7 +75,7 @@ class a_star(Planner):
                         if x2 >= 0 and x2 < len(grid) and y2 >=0 and y2 < len(grid[0]):
                             if closed[x2][y2] == 0 and grid[x2][y2] == 0:
                                 g2 = g + possible_movements[i][2] 
-                                f = g2 + calculate_heuristic([x2,y2], self.goal)
+                                f = g2 + self.calculate_heuristic([x2,y2], self.goal)
                                 open_list.append([f, g2, x2, y2])
                                 closed[x2][y2] = 1
                                 deltas[x2][y2] = i
@@ -113,7 +109,7 @@ class a_star(Planner):
             for i in reversed(range(len(path))):            
                 grid_plot[path[i][0]][path[i][1]] = 20+i
                 self.ax.matshow(np.rot90(np.array(grid_plot)))      
-                plt.savefig("images/"+ str(self.itr) +".png")
+#                plt.savefig("images/"+ str(self.itr) +".png")
                 self.itr += 1
                 plt.pause(0.001) 
         path_x = path[:,0]*self.resolution + self.min_lim_x
@@ -122,6 +118,12 @@ class a_star(Planner):
      
         
         return path
+
+    def calculate_heuristic(self, pos, goal):
+        w = self.resolution  # weight of heuristic
+        d = w * math.sqrt((pos[0] - goal[0])**2 + (pos[1] - goal[1])**2)
+        return d      
+
         
     def animation(self, open_list, next_item, grid_plot):
 
@@ -134,7 +136,8 @@ class a_star(Planner):
         plt.xlabel('x [m]')
         plt.ylabel('y [m]')
         plt.title('A* Planner')
-        plt.savefig("images/"+ str(self.itr) +".png")
+#        plt.savefig("images/"+ str(self.itr) +".png")
         self.itr += 1
         plt.pause(0.001)
+
         

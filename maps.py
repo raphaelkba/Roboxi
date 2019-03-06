@@ -9,7 +9,7 @@ E-Mail : raphael_kba@hotmail.com
 import numpy as np
 import copy
 from animation import animation
-from a_star import a_star
+import a_star
 import matplotlib.pyplot as plt
 from RRT import RRT
 

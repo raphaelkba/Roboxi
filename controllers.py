@@ -67,7 +67,7 @@ class controllers():
         return np.array([vel, delta])  
         
     def lqr_vel_steer_control(self, robot):
-        robot.lookahead_idx = 25
+#        robot.lookahead_idx = 25
         self.Q = np.eye(5)
         self.R = np.eye(2)
         robot.goal = self.look_ahead(robot)
@@ -126,7 +126,7 @@ class controllers():
                 idx = i
                 goal[0] = robot.path[0][i+robot.lookahead_idx]
                 goal[1] = robot.path[1][i+robot.lookahead_idx]
-                goal[2] = math.atan2(robot.path[1][i+2]-robot.path[1][i], robot.path[0][i+2]- robot.path[0][i])
+                goal[2] = math.atan2(robot.path[1][i+1]-robot.path[1][i], robot.path[0][i+1]- robot.path[0][i])
                 if len(robot.path[0]) < robot.lookahead_idx+1: # if close to final goal, returns final goal 
                     goal[0] = robot.path[0][-1]
                     goal[1] = robot.path[1][-1]

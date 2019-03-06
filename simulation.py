@@ -4,7 +4,6 @@ Roboxi - Simulation
 Author: Raphael Kusumoto Barbosa de Almeida
 E-Mail : raphael_kba@hotmail.com
 """
-
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
@@ -18,6 +17,8 @@ from robots import diff_drive, extended_bicycle, front_wheel_drive, simple_bicyc
 from RRT import RRT
 from kalman_filter import Kalman_filter
 
+import cubic_spline_planner
+
 if __name__ == '__main__':
     # Initialize simulation parameters
     plt.close("all")
@@ -28,9 +29,9 @@ if __name__ == '__main__':
     ###################### Initialize map ###################### 
     resolution = 0.1 # map resolution
     map_limits = [-20, 20, -20, 20] # [min_x, max_x, min_y, max_y]
-    obstacles = ([2, 8, 2],
-                 [-2, 3, 3],
-                 [9, -4, 4]) 
+    obstacles = ([2, 8, 5],
+                 [-2, 3, 6],
+                 [9, -4, 7]) 
 #    obstacles = ()
     inflation = 3.0
     maps = maps(resolution, map_limits, obstacles, inflation) 
@@ -64,10 +65,11 @@ if __name__ == '__main__':
     planner = a_star(resolution, map_limits, states, goal)    
     path = planner.plan(grid)
     
-#    rrt = RRT(states, goal, obstacles, map_limits, 0.2, 10000)
+#    rrt = RRT(states, goal, obstacles, map_limits, 2.0, 10000)
 #    path = rrt.plan()
     
-    
+    rx, ry, ryaw, rk, s = cubic_spline_planner.calc_spline_course(path[0], path[1], ds=0.5)
+    path = [rx, ry]
     ################ Initialize model and control ################# 
     robot_ground_truth = extended_bicycle("RK2", states, controls, path, dT)
     robot = extended_bicycle("RK3", states, controls, path, dT)
@@ -85,8 +87,8 @@ if __name__ == '__main__':
         add_noise = False
         robot_ground_truth.run(add_noise) # ground truth
 #        add_noise = False
-#        robot.run(add_noise)
-        robot = ekf.run_filter(robot, robot_ground_truth.states) 
+        robot.run(add_noise)
+#        robot = ekf.run_filter(robot, robot_ground_truth.states) 
 
         states_history = np.hstack((states_history, robot.states))
         states_history_ground_truth = np.hstack((states_history_ground_truth, robot_ground_truth.states))

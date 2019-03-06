@@ -51,7 +51,7 @@ class animation():
         plt.legend(numpoints=1, loc = 'lower right') 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
-        plt.savefig("images/"+ str(self.itr) +".png")
+#        plt.savefig("images/"+ str(self.itr) +".png")
         self.itr += 1
                   
     def plot_map(x, y, axis):

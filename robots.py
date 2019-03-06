@@ -272,7 +272,7 @@ class extended_bicycle(robots):
         self.max_steering_angle = math.pi/3
         self.min_steering_angle = -math.pi/3
         self.gains = np.array([0.1, 10.0, 2.0, -0.5])
-        self.lookahead_idx = 5
+        self.lookahead_idx = 2
         self.error_old = 0
         self.previous_error = 0
         self.previous_angle_error = 0

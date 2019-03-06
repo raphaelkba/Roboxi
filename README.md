@@ -3,7 +3,7 @@ This Robotics Toolbox offers an easy to plug robotics algorithms into a simulati
 We plan to cover the main areas in robotics such as perception, localization, mapping and motion planning. Any feedback is welcome =D! Notice this is a personal project and the main objective is to improve my robotics knowledge and programming skills =D
 
 ## Examples
-This section presents some examples of the algorithms and combinations implemented in the Roboxi. Altough there are some limitations as path planning post smoothing or lack of state of the art methods, the main idea is to show the flexibility of how the toolbox can be used.
+This section presents some examples of the algorithms and combinations implemented in the Roboxi. Altough there are some limitations as path planning post smoothing. A look ahead algorithm is used to smooth out the final robot path. Furthermore, one may notice the lack of state of the art methods, but initially the main idea is to show the flexibility of how the toolbox can be used. Later we will introduce novel algorithms and methods...
 
 * A* planner example
 ![A*](gifs/a_star.gif)
@@ -47,14 +47,14 @@ For now, simple grid map can be created with squared obstacles.
 
 ## Localization/Maping
 Currently no filters or localization algorithms are implemented. Ideas:
-* Kalman Filter (todo)
+* Kalman Filter
 * Particle Filter (todo)
 * SLAM (todo)
 * ...
 
 ## Planners
 To find a path from the initial pose to the goal pose its possible to use a planning algorithm. The following planners are implemented:
-* A* Planner
+* A* Planner (todo: heuristic that includes obstacles?)
 * RRT
 * RRT* (todo)
 * PRM (todo)
@@ -64,7 +64,7 @@ To find a path from the initial pose to the goal pose its possible to use a plan
 For each model one or more controllers can be used.
 * Simple car/bicycle model
 	* Simple pose controller
-	* Linear Quadratic Regulator (Todo)
+	* Linear Quadratic Regulator
 * Differential Drive 
 	* Simple pose controller 
 	* Linear Quadratic Regulator
