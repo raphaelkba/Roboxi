@@ -87,7 +87,7 @@ class controllers():
         ustar = -lqr_k @ error
         # calc steering input
         delta = utils.truncate_angle(ustar[1])
-                
+        delta = (delta - robot.states[4,0])/robot.dT
         return np.array([ustar[0], delta])  
         
     def solve_DARE(self, A, B):

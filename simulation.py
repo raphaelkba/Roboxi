@@ -16,6 +16,8 @@ from a_star import a_star
 from robots import diff_drive, extended_bicycle, front_wheel_drive, simple_bicycle
 from RRT import RRT
 from kalman_filter import Kalman_filter
+from manual_control import ManualControl
+
 
 import cubic_spline_planner
 
@@ -77,19 +79,29 @@ if __name__ == '__main__':
     control = controllers(robot.gains)    
     
     ekf = Kalman_filter(states.shape[0])
+    mc = ManualControl()
     
+    
+#    def on_key(event):
+#        print('you pressed', event.key, event.xdata, event.ydata)
+
+
     print("Start Simulation")
     while utils.euclidean_distance(goal, robot.states) > 0.3:
         
+#        cid = anime.fig.canvas.mpl_connect('key_press_event', on_key)
+        
+#        robot.controls = mc.get_controls(anime.fig, robot.states, dT)
         robot.controls = control.lqr_vel_steer_control(robot)
         robot_ground_truth.controls = copy.deepcopy(robot.controls)
-        
+#        
         add_noise = False
         robot_ground_truth.run(add_noise) # ground truth
-#        add_noise = False
+##        add_noise = False
         robot.run(add_noise)
-#        robot = ekf.run_filter(robot, robot_ground_truth.states) 
-
+##        robot = ekf.run_filter(robot, robot_ground_truth.states) 
+#
+        print(robot.states)
         states_history = np.hstack((states_history, robot.states))
         states_history_ground_truth = np.hstack((states_history_ground_truth, robot_ground_truth.states))
         controls_history = np.hstack((controls_history, robot.controls))
@@ -97,6 +109,6 @@ if __name__ == '__main__':
 #        plt.pause(0.25)
         if play_animation:
             anime.animate(states_history, robot_ground_truth, path , maps)         
-    
+            
     print("Simulation Finished")
 

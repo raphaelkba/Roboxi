@@ -367,7 +367,7 @@ class extended_bicycle(robots):
     def run(self, noise):
         """ simulation pipeline for running the robot one timestep """
 #        self.controls[0] = (self.controls[0] - self.states[3,0])#/self.dT
-        self.controls[1] = (self.controls[1] - self.states[4,0])/self.dT
+#        self.controls[1] = (self.controls[1] - self.states[4,0])/self.dT
         if noise:
             self.add_control_noise()
         self.runge_kutta_solver()

@@ -6,6 +6,7 @@ E-Mail : raphael_kba@hotmail.com
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+
 import matplotlib as mpl
 import matplotlib.image as mpimg
 from matplotlib import transforms
@@ -15,12 +16,17 @@ import matplotlib.patches as mpatches
 from utils import utils
 import cv2
 import os
+import matplotlib.animation as anim
+from pylab import *
 
 class animation():
     
     def __init__(self):
+        
         self.fig, self.ax = plt.subplots()
         self.itr = 1
+        ion()
+#        mpl.use('Qt5Agg')
 
                    
     def plot_pose(self, pose, color):
@@ -29,6 +35,7 @@ class animation():
           
         
     def animate(self, states_history, robot, path, maps):
+        
         self.ax.cla()
         self.ax.plot(path[0], path[1], '.g')
         self.plot_car(robot.x, robot.y, robot.theta, robot.steering_angle, 4.5)
@@ -43,16 +50,19 @@ class animation():
         maps.plot_map(self.ax)
 
         self.ax.grid(True)
-#        plt.pause(0.001)
+        
         self.ax.axis('equal')
-        plt.xlabel('x [m]')
-        plt.ylabel('y [m]')
-        plt.title('Roboxi - Extended Bicycle Model - A* - EKF - LQR control')
-        plt.legend(numpoints=1, loc = 'lower right') 
+        self.ax.set_xlabel('x [m]')
+        self.ax.set_ylabel('y [m]')
+        self.ax.set_title('Roboxi - Extended Bicycle Model - A* - EKF - LQR control')
+        self.ax.legend(numpoints=1, loc = 'lower right') 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
 #        plt.savefig("images/"+ str(self.itr) +".png")
         self.itr += 1
+        plt.show()
+        self.fig.canvas.draw_idle()
+        
                   
     def plot_map(x, y, axis):
         axis.plot(x, y, ".b")
