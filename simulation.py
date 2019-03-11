@@ -15,6 +15,7 @@ from maps import maps
 from a_star import a_star
 from robots import diff_drive, extended_bicycle, front_wheel_drive, simple_bicycle
 from RRT import RRT
+from RRT_star import RRT_star
 from kalman_filter import Kalman_filter
 from manual_control import ManualControl
 
@@ -28,7 +29,7 @@ if __name__ == '__main__':
     dT = 0.1
     anime = animation()
     play_animation = True
-    ###################### Initialize map ###################### 
+    ###################### Initialize map ########################
     resolution = 0.1 # map resolution
     map_limits = [-20, 20, -20, 20] # [min_x, max_x, min_y, max_y]
     obstacles = ([2, 8, 5],
@@ -39,24 +40,26 @@ if __name__ == '__main__':
     maps = maps(resolution, map_limits, obstacles, inflation) 
     grid = maps.make_grid() # get grid map with inflated obstacles
     
-    ###################### Initialize controls and states ###################### 
-    
-#    states = np.array([[-8.0],
-#                       [-8.0],
-#                      [0*np.pi],[0]])
+    ############### Initialize controls and states ############### 
+    x = np.random.randint(-20,0) # todo  colission check for intial states
+    y = np.random.randint(-20,0)
+    theta = np.random.randint(-np.pi/2*10.0,np.pi/2*10.0)/10.0
+#    states = np.array([[x],
+#                       [y],
+#                      [theta],[0]])
 #                      
-#    states = np.array([[-8.0],
-#                       [-8.0],
-#                      [0*np.pi]])
+#    states = np.array([[x],
+#                       [y],
+#                      [theta]])
                       
-    states = np.array([[-8.0],
-                        [-8.0],
-                      [np.pi*0],
+    states = np.array([[x],
+                        [y],
+                      [theta],
                       [0.0],
                       [0.0]])
     
     controls = np.array([0.0, 0.0])
-    goal = np.array([15.0, 15.0, 0.0])
+    goal = np.array([np.random.randint(0,20), np.random.randint(0,20), 0.0])
         
     
     states_history = states
@@ -65,12 +68,15 @@ if __name__ == '__main__':
     
     ###################### Initialize path planning ###################### 
     planner = a_star(resolution, map_limits, states, goal)    
-    path = planner.plan(grid)
+    path_1 = planner.plan(grid)
     
 #    rrt = RRT(states, goal, obstacles, map_limits, 2.0, 10000)
 #    path = rrt.plan()
+    rrt = RRT_star(states, goal, obstacles, map_limits, 1.0, 500)
+    path = rrt.plan()
     
-    rx, ry, ryaw, rk, s = cubic_spline_planner.calc_spline_course(path[0], path[1], ds=0.5)
+    # smooth path
+    rx, ry, ryaw, rk, s = cubic_spline_planner.calc_spline_course(path[0], path[1], ds=0.1)
     path = [rx, ry]
     ################ Initialize model and control ################# 
     robot_ground_truth = extended_bicycle("RK2", states, controls, path, dT)
@@ -81,27 +87,20 @@ if __name__ == '__main__':
     ekf = Kalman_filter(states.shape[0])
     mc = ManualControl()
     
-    
-#    def on_key(event):
-#        print('you pressed', event.key, event.xdata, event.ydata)
-
 
     print("Start Simulation")
     while utils.euclidean_distance(goal, robot.states) > 0.3:
-        
-#        cid = anime.fig.canvas.mpl_connect('key_press_event', on_key)
-        
+                
 #        robot.controls = mc.get_controls(anime.fig, robot.states, dT)
         robot.controls = control.lqr_vel_steer_control(robot)
         robot_ground_truth.controls = copy.deepcopy(robot.controls)
 #        
         add_noise = False
         robot_ground_truth.run(add_noise) # ground truth
-##        add_noise = False
+#        add_noise = True
         robot.run(add_noise)
-##        robot = ekf.run_filter(robot, robot_ground_truth.states) 
-#
-        print(robot.states)
+#        robot = ekf.run_filter(robot, robot_ground_truth.states) 
+
         states_history = np.hstack((states_history, robot.states))
         states_history_ground_truth = np.hstack((states_history_ground_truth, robot_ground_truth.states))
         controls_history = np.hstack((controls_history, robot.controls))

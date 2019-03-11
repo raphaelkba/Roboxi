@@ -17,18 +17,13 @@ class ManualControl():
     def get_controls(self, fig, states, dT):
         def on_key(event):
             keyboard = event.key
-#            print('you pressed', event.key, event.xdata, event.ydata)
             if keyboard == 'up':
-#                print("up")
                 self.acceleration = 0.1
             elif keyboard == 'down':
-#                print("down")
                 self.acceleration = -0.1
             elif keyboard == 'left':
-#                print("left")
                 self.steering_vel = 1.5
             elif keyboard == 'right':
-#                print("right")
                 self.steering_vel = -1.5
             else:
                 self.steering_vel = 0.0

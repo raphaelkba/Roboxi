@@ -18,7 +18,7 @@ class Planner():
         self.max_lim_x = map_limits[1]
         self.min_lim_y = map_limits[2]
         self.max_lim_y = map_limits[3]
-        self.planner_animation = False
+        self.planner_animation = True
         if self.planner_animation:
             self.fig, self.ax = plt.subplots()
         

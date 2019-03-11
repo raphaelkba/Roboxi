@@ -8,15 +8,9 @@ import math
 import matplotlib.pyplot as plt
 
 import matplotlib as mpl
-import matplotlib.image as mpimg
-from matplotlib import transforms
-from scipy import ndimage
-import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
-from utils import utils
 import cv2
 import os
-import matplotlib.animation as anim
 from pylab import *
 
 class animation():
@@ -26,7 +20,7 @@ class animation():
         self.fig, self.ax = plt.subplots()
         self.itr = 1
         ion()
-#        mpl.use('Qt5Agg')
+
 
                    
     def plot_pose(self, pose, color):
@@ -44,7 +38,6 @@ class animation():
         self.ax.plot(states_history[0][-1], states_history[1][-1], "ob", label='EKF')
         self.ax.plot(robot.x, robot.y, "ok", label='Robot position')
         
-        
 #        self.plot_pose(states_history[:,-1], 'b')
         
         maps.plot_map(self.ax)
@@ -61,7 +54,7 @@ class animation():
 #        plt.savefig("images/"+ str(self.itr) +".png")
         self.itr += 1
         plt.show()
-        self.fig.canvas.draw_idle()
+#        self.fig.canvas.draw_idle()
         
                   
     def plot_map(x, y, axis):

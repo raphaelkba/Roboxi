@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 from utils import utils
 from planner import Planner
 import matplotlib.patches as mpatches
-from controllers import controllers
-from robots import diff_drive, extended_bicycle, front_wheel_drive, simple_bicycle
 
 
 class RRT(Planner):
@@ -29,8 +27,6 @@ class RRT(Planner):
         self.max_itr = max_itr
         self.nodes = []
         self.nodes.append([self.start[0], self.start[1], -1])
-        self.gains = np.array([0.1, 0.0, 1.0, -0.5])
-        self.control = controllers(self.gains)        
         self.itr = 0
         super().__init__(self.start, self.goal, map_limits)
 

@@ -56,12 +56,12 @@ Currently no filters or localization algorithms are implemented. Ideas:
 To find a path from the initial pose to the goal pose its possible to use a planning algorithm. The following planners are implemented:
 * A* Planner (todo: heuristic that includes obstacles?)
 * RRT
-* RRT* (todo)
+* RRT* 
 * PRM (todo)
 * ...
 
 ## Controllers
-For each model one or more controllers can be used.
+For each model one or more controllers can be used. A manual control mode is also provided.
 * Simple car/bicycle model
 	* Simple pose controller
 	* Linear Quadratic Regulator
@@ -74,6 +74,8 @@ For each model one or more controllers can be used.
 * Front wheel drive 
 	* Simple pose controller 
 	* Linear Quadratic Regulator (Todo)
+* Manual Controller
+    * Control the robot with the keyboard arrows
 * MPC and IT-MPC (todos for any model)
 * ...
 
@@ -83,6 +85,7 @@ Additional ideas for the future, when all basic part are implemented
 * Behaviour planning
 * Reiforcement Learning
 * GUI
+* Pygame???
 * ...
 
 ## Requirements
@@ -92,10 +95,12 @@ Additional ideas for the future, when all basic part are implemented
 * matplotlib
 
 ### Next todos
+* collision check function
+* argument parser
+* documentation on how to use
 * spline
 * sensor class?
 * graph slam
 * round obstacles
 * code cleaning/comments
-* RRT plot final path
-* RRT*
+* RRT, RRT* plot final path and correct collision check

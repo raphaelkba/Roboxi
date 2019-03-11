@@ -38,7 +38,7 @@ class utils():
             value = max_value
         return value
 
-    def find_closest_point(nodes, curr_node):
+    def find_closest_point(nodes, curr_node): # change vars to vec and return only min index
 
         distances = [(node[0] - curr_node[0]) ** 2 + (node[1] - curr_node[1])
                  ** 2 for node in nodes]
