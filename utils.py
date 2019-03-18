@@ -45,5 +45,19 @@ class utils():
         return nodes[distances.index(min(distances))], distances.index(min(distances))
         
     
-
+    def collision_square_obstacle(pos, obstacles):
+        for obstacle in obstacles:
+            x_min = obstacle[0] - obstacle[2]/2
+            x_max = obstacle[0] + obstacle[2]/2
+            y_min = obstacle[1] - obstacle[2]/2
+            y_max = obstacle[1] + obstacle[2]/2
+            if x_min <= pos[0] and pos[0] <=  x_max and y_min <= pos[1] and pos[1] <= y_max:
+                return True
+        return False
+    
+    def collision_round_obstacle(pos, obstacles):
+        for obstacle in obstacles:
+             if ((obstacle[0] - pos[0])*(obstacle[0] - pos[0]) + (obstacle[1] - pos[1])*(obstacle[1] - pos[1])) <= obstacle[2]**2:
+                return True
+        return False
 

@@ -55,7 +55,7 @@ class robots():
         pass
     
     def add_control_noise(self):
-        noise_cov = np.diag([1.0, np.deg2rad(40.0)])**2
+        noise_cov = np.diag([0.5, 0.5])**2
         self.controls[0] +=  np.random.randn()*noise_cov[0,0]
         self.controls[1] +=  np.random.randn()*noise_cov[1,1]    
     
@@ -265,14 +265,14 @@ class extended_bicycle(robots):
         self.L = 4.5
         self.max_vel = 50.0
         self.min_vel = -50.0
-        self.max_acc = 10.0
-        self.min_acc = -10.0        
-        self.max_steering_vel = 10.0
-        self.min_steering_vel = -10.0
+        self.max_acc = 5.0
+        self.min_acc = -5.0        
+        self.max_steering_vel = math.radians(50.0)
+        self.min_steering_vel = -math.radians(50.0)
         self.max_steering_angle = math.pi/3
         self.min_steering_angle = -math.pi/3
         self.gains = np.array([0.1, 10.0, 2.0, -0.5])
-        self.lookahead_idx = 5
+        self.lookahead_idx = 2
         self.error_old = 0
         self.previous_error = 0
         self.previous_angle_error = 0

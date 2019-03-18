@@ -74,10 +74,8 @@ class RRT(Planner):
         return new_node                     
                            
     def check_collision(self, node):
-        for obstacle in self.obstacles:
-            if (math.sqrt((obstacle[0] - node[0])*(obstacle[0] - node[0]) + (obstacle[1] - node[1])*(obstacle[1] - node[1]))) < obstacle[2]:
-                return False
-        return True
+        return not utils.collision_square_obstacle(node, self.obstacles)
+
     
     def check_goal(self, node):
         if ((self.goal[0] - node[0])** 2 + (self.goal[1] - node[1])** 2) < self.expand_distance:
@@ -90,6 +88,9 @@ class RRT(Planner):
             path.append([self.nodes[idx][0][0], self.nodes[idx][1][0]])
             idx = self.nodes[idx][2]
         path.append([self.start[0][0], self.start[1][0]])
+        if self.animation:
+            plt.plot([x for (x, y) in path], [y for (x, y) in path], '-r')
+            plt.show()
         return np.array(path)
         
     def animation(self):
@@ -113,6 +114,6 @@ class RRT(Planner):
         plt.ylabel('y [m]')
         plt.title('RRT Planner')
 #        if self.itr%5 == 0:
-        plt.savefig("images/"+ str(self.itr) +".png")
+#        plt.savefig("images/"+ str(self.itr) +".png")
         self.itr += 1
         plt.pause(0.001)

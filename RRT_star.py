@@ -67,8 +67,6 @@ class RRT_star(Planner):
 
 
         path = self.find_path()
-        plt.plot([x for (x, y) in path], [y for (x, y) in path], '-r')
-        plt.show()
         path_x = np.array(path[:,0])
         path_y = np.array(path[:,1])
         path = [path_x[::-1], path_y[::-1]]
@@ -98,6 +96,9 @@ class RRT_star(Planner):
             path.append([self.nodes[idx][0], self.nodes[idx][1]])
             idx = self.nodes[idx][3]
         path.append([self.start[0,0], self.start[1,0]])
+        if self.animation:
+            plt.plot([x for (x, y) in path], [y for (x, y) in path], '-r')
+            plt.show()
         return np.array(path)
     
                     
@@ -179,11 +180,8 @@ class RRT_star(Planner):
         return new_node                     
                            
     def obstacle_free(self, node):
-        for obstacle in self.obstacles:
-            if ((obstacle[0] - node[0])*(obstacle[0] - node[0]) + (obstacle[1] - node[1])*(obstacle[1] - node[1])) <= obstacle[2]**2:
-                return False
-        return True
-    
+        return not utils.collision_square_obstacle(node, self.obstacles)
+        
     def check_goal(self, node):
         if ((self.goal[0] - node[0])** 2 + (self.goal[1] - node[1])** 2) < self.expand_distance:
             return True
@@ -209,7 +207,7 @@ class RRT_star(Planner):
        
         plt.xlabel('x [m]')
         plt.ylabel('y [m]')
-        plt.title('RRT Planner')
+        plt.title('RRT* Planner')
 #        if self.itr%5 == 0:
 #        plt.savefig("images/"+ str(self.itr) +".png")
         self.itr += 1

@@ -12,8 +12,8 @@ import copy
 class Kalman_filter():
     def __init__(self, states_size):
         self.Q = np.ones((states_size,states_size))
-        self.Q[0,0] = 2.1
-        self.Q[1,1] = 2.1        
+#        self.Q[0,0] = 2.1
+#        self.Q[1,1] = 2.1        
 #        self.Q[2,2] = np.deg2rad(1.0)
 #        self.Q *= self.Q
         self.R = np.diag([1.0, 1.0])  

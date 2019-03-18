@@ -71,6 +71,7 @@ For each model one or more controllers can be used. A manual control mode is als
 * Extended Bicycle Kinematic model 
 	* Simple pose controller 
 	* Linear Quadratic Regulator
+	* Nonlinear Model Predictive Control
 * Front wheel drive 
 	* Simple pose controller 
 	* Linear Quadratic Regulator (Todo)
@@ -93,14 +94,20 @@ Additional ideas for the future, when all basic part are implemented
 * Python 3.6
 * numpy
 * matplotlib
+* casadi - https://web.casadi.org/
+* currently for smoothing we use https://github.com/AtsushiSakai/PythonRobotics/tree/master/PathPlanning/CubicSpline
+
 
 ### Next todos
-* collision check function
+* collision check function for the simulation
 * argument parser
 * documentation on how to use
 * spline
 * sensor class?
 * graph slam
 * round obstacles
+* rectanguar obstacles instead of squared
 * code cleaning/comments
-* RRT, RRT* plot final path and correct collision check
+* RRT* add fail case
+* check if robot is spawn on top of obstacles
+* replanning

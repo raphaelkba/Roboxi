@@ -18,6 +18,7 @@ from RRT import RRT
 from RRT_star import RRT_star
 from kalman_filter import Kalman_filter
 from manual_control import ManualControl
+from mpc import NonlinearMPC
 
 
 import cubic_spline_planner
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     obstacles = ([2, 8, 5],
                  [-2, 3, 6],
                  [9, -4, 7]) 
-#    obstacles = ()
+#    obstacles = () # empty map
     inflation = 3.0
     maps = maps(resolution, map_limits, obstacles, inflation) 
     grid = maps.make_grid() # get grid map with inflated obstacles
@@ -68,16 +69,18 @@ if __name__ == '__main__':
     
     ###################### Initialize path planning ###################### 
     planner = a_star(resolution, map_limits, states, goal)    
-    path_1 = planner.plan(grid)
+    path = planner.plan(grid)
     
 #    rrt = RRT(states, goal, obstacles, map_limits, 2.0, 10000)
 #    path = rrt.plan()
-    rrt = RRT_star(states, goal, obstacles, map_limits, 1.0, 500)
-    path = rrt.plan()
+    
+#    rrt = RRT_star(states, goal, obstacles, map_limits, 1.0, 500)
+#    path = rrt.plan()
     
     # smooth path
-    rx, ry, ryaw, rk, s = cubic_spline_planner.calc_spline_course(path[0], path[1], ds=0.1)
+    rx, ry, ryaw, rk, s = cubic_spline_planner.calc_spline_course(path[0], path[1], ds=0.25)
     path = [rx, ry]
+    
     ################ Initialize model and control ################# 
     robot_ground_truth = extended_bicycle("RK2", states, controls, path, dT)
     robot = extended_bicycle("RK3", states, controls, path, dT)
@@ -86,13 +89,15 @@ if __name__ == '__main__':
     
     ekf = Kalman_filter(states.shape[0])
     mc = ManualControl()
-    
+    mpc = NonlinearMPC(2.5, dT)
 
     print("Start Simulation")
     while utils.euclidean_distance(goal, robot.states) > 0.3:
                 
 #        robot.controls = mc.get_controls(anime.fig, robot.states, dT)
-        robot.controls = control.lqr_vel_steer_control(robot)
+        control.lqr_vel_steer_control(robot)
+        robot.controls = mpc.MPC(robot.states, robot.path)
+        
         robot_ground_truth.controls = copy.deepcopy(robot.controls)
 #        
         add_noise = False
@@ -100,7 +105,7 @@ if __name__ == '__main__':
 #        add_noise = True
         robot.run(add_noise)
 #        robot = ekf.run_filter(robot, robot_ground_truth.states) 
-
+#        utils.collision_square_obstacle(robot.states, )
         states_history = np.hstack((states_history, robot.states))
         states_history_ground_truth = np.hstack((states_history_ground_truth, robot_ground_truth.states))
         controls_history = np.hstack((controls_history, robot.controls))
